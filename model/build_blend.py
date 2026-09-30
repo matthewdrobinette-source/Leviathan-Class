@@ -389,7 +389,7 @@ EXPLORING
     drive_throttle      emitter glow
 - Text Editor > configuration_states.py > Run Script sets the Section 17.1
   states (Cruising, Action, Deployed).
-- Cameras 'CAM 01' to 'CAM 13' are the rendered views (Numpad 0 to look through).
+- Cameras 'CAM 01' to 'CAM 14' are the rendered views (Numpad 0 to look through).
 - Collection 'Interior volumes (ghost view)': hide the hull slabs and show this
   to see the Annex B allocation as colour-coded volumes.
 - The section runs exact booleans on the hull slabs; expect a few seconds per change.

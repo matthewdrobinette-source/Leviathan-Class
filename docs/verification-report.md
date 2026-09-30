@@ -181,6 +181,8 @@ stowed) on 60 m of travel.
 | C.12 | The ventral outer band is 278 mounts in B.8 (30 m pitch at r 1,331) but 261 in C.12. | 278. |
 | C.14 | Shares sum to 99.6 % (4,804 of 4,830 M m³). Reactor and auxiliary halls alone are 275 M m³ of the 290 allowed for machinery. With plausible generator halls it is about 395. | Rebalance. |
 
+| §1, B.8 | "Overall length, over drive fairing, 3,536.9 m" is to the fairing's structural boundary. The emitter face stands 20 m proud of it (B.8), so the ship measures 3,556.9 m end to end. The render measures 3,559 m. | State both, or say the length excludes the emitter standoff. |
+
 Checks that pass include:
 - Every principal dimension and the dorsal cap geometry.
 - The fixed-cap / collar-well construction.
@@ -195,6 +197,25 @@ Checks that pass include:
 - The hull density (0.93 t/m³ on the A.8 method).
 - Core flotation (244 m, 404 m).
 - The Annex C fixture, messing, recreation, medical and ventilation figures.
+
+## Rendered geometry measured against the spec
+
+`model/annotate_drawings.py` measures the hull silhouette in the orthographic renders.
+It samples lines clear of every light, so bloom can't widen the silhouette, and compares
+each measurement with the datums:
+
+| Measurement | Expected | Measured from pixels |
+|---|---:|---:|
+| Beam view at z −420: rim to emitter face (3,536.9 + 20 m standoff) | 3,556.9 m | 3,558.8 m |
+| Beam view at y −350: collar crown to ventral rim plane | 730.0 m | 731.2 m |
+| Plan view: diameter fitted to four chords | 3,356.9 m | 3,359.7 m |
+| Plan view along x = +300: bow rim to emitter face | 3,496.6 m | 3,496.0 m |
+
+All four agree within 3 m, about two pixels at 1.6–1.9 m per pixel.
+`verification/test_blend_controls.py` separately checks that every control on the
+.blend drives what it should. It covers collar travel, iris leaves, instance counts,
+release order, de-stack offsets, screen states, mouth shutters, booms and the section
+(22 checks, all passing).
 
 ## The HTML datum model
 

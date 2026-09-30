@@ -111,6 +111,7 @@ def instancer_group():
     dep.operation = "GREATER_THAN"
     L.new(gi.outputs["Deploy"], dep.inputs[0])
     dep.inputs[1].default_value = 0.01
+    L.new(dep.outputs[0], mount.inputs["Selection"])   # stowed: shutter only, the mount is struck below
     sw = N.new("GeometryNodeSwitch")
     sw.input_type = "GEOMETRY"
     L.new(dep.outputs[0], sw.inputs["Switch"])
@@ -209,26 +210,38 @@ def _barrel(pb, x0, y, z, length, radius, elev_deg, mat, n=12):
     pb.add_faces(V, F, mat)
 
 
-def mount_object(name, aperture, stroke, coll, twin=True, barrel_len=None):
+def _oct_prism(pb, cx, R, z0, z1, top_scale=0.8, mat=0, n=8):
+    """Faceted gun house: an n-sided prism, chamfered toward its roof."""
+    a = [2 * math.pi * (k + 0.5) / n for k in range(n)]
+    lo = [(cx + R * math.cos(t), R * math.sin(t), z0) for t in a]
+    mid = [(cx + R * math.cos(t), R * math.sin(t), z0 + (z1 - z0) * 0.6) for t in a]
+    hi = [(cx + R * top_scale * math.cos(t), R * top_scale * math.sin(t), z1) for t in a]
+    V = lo + mid + hi
+    F = [tuple(range(n))[::-1], tuple(range(2 * n, 3 * n))]
+    for i in range(n):
+        j = (i + 1) % n
+        F.append((i, j, n + j, n + i))
+        F.append((n + i, n + j, 2 * n + j, 2 * n + i))
+    pb.add_faces(V, F, mat)
+
+
+def mount_object(name, aperture, stroke, coll, twin=True, barrel_len=None, elev=35.0):
     """Gun mount in its local frame: +Z the outward normal, +X the training
-    direction, top at z = 0 so that (Deploy - 1) x Stroke hides it when stowed."""
+    direction. Built with its top at z = +stroke; the instancer lowers it by
+    (1 - Deploy) x Stroke, so it sits flush-hidden when stowed and stands the
+    full stroke proud when deployed."""
     pb = PatchBuilder()
     R = aperture / 2
     h = stroke
-    body_top = -h * 0.35
-    _cyl(pb, R * 0.97, -h - 2, body_top, 40, 0, cap_top=True, cap_bot=True)       # rising barbette trunk
-    _cyl(pb, R * 1.0, body_top - 1.2, body_top, 40, 2, cap_top=True, cap_bot=True)  # turntable ring
-    hw, hl = R * 1.25, R * 1.45
-    _box(pb, R * 0.1, 0, body_top + (0 - body_top) / 2, hl, hw, -body_top, 0)      # gun house
-    _box(pb, R * 0.55, 0, -h * 0.05, hl * 0.35, hw * 0.8, h * 0.1, 0)               # house crown
-    bl = barrel_len or aperture * 0.85
-    br = max(0.35, aperture * 0.035)
-    zc = body_top * 0.45
-    if twin:
-        for yy in (-R * 0.28, R * 0.28):
-            _barrel(pb, R * 0.6, yy, zc, bl, br, 14.0, 1)
-    else:
-        _barrel(pb, R * 0.5, 0, zc, bl, br, 14.0, 1)
+    ring_top = h * 0.35
+    _cyl(pb, R * 0.97, -4.0, ring_top, 40, 2, cap_top=True, cap_bot=True)            # barbette trunk and turntable
+    _oct_prism(pb, 0.0, R * 0.82, ring_top, h, 0.72, 0)                               # faceted gun house
+    bl = barrel_len or aperture * 0.6
+    br = max(0.35, aperture * 0.04)
+    zc = ring_top + (h - ring_top) * 0.45
+    offs = (-R * 0.26, R * 0.26) if twin else (0.0,)
+    for yy in offs:
+        _barrel(pb, R * 0.55, yy, zc, bl, br, elev, 1)
     me = pb.build(name, smooth=False, do_weld=False)
     for m in ("Turret, quadanium", "Turret barrel", "Core frame ring"):
         me.materials.append(MATS[m])
@@ -608,13 +621,13 @@ FITTING_SPECS = {
 def build_sources(coll):
     """Instance source objects in a hidden collection."""
     S = {}
-    S["heavy"] = (mount_object("SRC heavy mount", 30.0, 12.0, coll, True, 26.0),
+    S["heavy"] = (mount_object("SRC heavy mount", 30.0, 12.0, coll, True, 17.0),
                   disc_object("SRC heavy shutter", 15.0, ("Mount shutter", "Seam, dark"), coll, iris_blades=8),
                   disc_object("SRC heavy open", 15.4, ("Aperture, dark",), coll, ring_inner=14.2))
-    S["medium"] = (mount_object("SRC medium mount", 15.0, 8.0, coll, True, 13.0),
+    S["medium"] = (mount_object("SRC medium mount", 15.0, 8.0, coll, True, 9.0),
                    disc_object("SRC medium shutter", 7.5, ("Mount shutter", "Seam, dark"), coll, iris_blades=6),
                    disc_object("SRC medium open", 7.8, ("Aperture, dark",), coll, ring_inner=7.1))
-    pdm = mount_object("SRC point-defence mount", 8.0, 4.0, coll, True, 6.0)
+    pdm = mount_object("SRC point-defence mount", 8.0, 4.0, coll, True, 4.5, elev=50.0)
     S["pd"] = (pdm, disc_object("SRC point-defence shutter", 4.0, ("Mount shutter", "Seam, dark"), coll, iris_blades=4),
                disc_object("SRC point-defence open", 4.2, ("Aperture, dark",), coll, ring_inner=3.7))
     S["cavity"] = S["pd"]

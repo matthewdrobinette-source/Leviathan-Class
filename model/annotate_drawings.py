@@ -6,6 +6,7 @@ Reads 04_beam_elevation.png and 05_dorsal_plan.png (orthographic cameras with
 known scale), measures the hull's silhouette from the pixels, compares it with
 the Section 1 particulars, and writes *_dimensioned.png sheets.
 """
+import math
 import os
 import sys
 
@@ -37,6 +38,35 @@ def extents(img, axis, lum=0.05, min_run=40):
     return int(idx.min()), int(idx.max())
 
 
+def line_extent(img, row=None, col=None, lum=0.05, run=6):
+    """First and last lit pixel along one row or column, ignoring isolated
+    stars (a lit run must be at least `run` pixels long)."""
+    a = np.asarray(img.convert("L"), dtype=float) / 255.0
+    v = a[row, :] if row is not None else a[:, col]
+    lit = v > lum
+    runs, start = [], None
+    for i, x in enumerate(np.append(lit, False)):
+        if x and start is None:
+            start = i
+        elif not x and start is not None:
+            if i - start >= run:
+                runs.append((start, i - 1))
+            start = None
+    return runs[0][0], runs[-1][1]
+
+
+def emitter_y_at_x(x):
+    """Stern extent (most negative y) of the emitter face at plan offset x."""
+    best = None
+    for i in range(20001):
+        t = 135.0 + 90.0 * i / 20000
+        r = G.r_out(t) + 20.0
+        xx, yy = G.xy(r, t)
+        if abs(xx - x) < 1.0 and (best is None or yy < best):
+            best = yy
+    return best
+
+
 def arrow_dim(d, p0, p1, text, f, col=DIM, off=(0, 0)):
     d.line([p0, p1], fill=col, width=3)
     for p, q in ((p0, p1), (p1, p0)):
@@ -59,21 +89,24 @@ def beam(path_in, path_out, lines):
 
     def px(y, z):
         return (cx + y / mpp, cy - (z + 315.0) / mpp)
-    x0, x1 = extents(im, 0)
-    y0, y1 = extents(im, 1)
+    # sample single lines well clear of every light and its bloom
+    row = int(round(cy - (-420.0 + 315.0) / mpp))
+    x0, x1 = line_extent(im, row=row)
     length = (x1 - x0 + 1) * mpp
+    col = int(round(cx + (-350.0) / mpp))
+    y0, y1 = line_extent(im, col=col)
     height = (y1 - y0 + 1) * mpp
-    lines.append(("Length over drive fairing (beam view)", 3536.9, length, mpp))
-    lines.append(("Height, collar extended (beam view)", 730.0, height, mpp))
-    pad = 200
-    out = Image.new("RGB", (W, H + 2 * pad), (10, 12, 16))
-    out.paste(im, (0, pad))
+    lines.append(("Length at z -420, rim to emitter face (spec 3,536.9 + 20 m emitter standoff)", 3556.9, length, mpp))
+    lines.append(("Height at y -350, collar crown to ventral rim plane", 730.0, height, mpp))
+    pad, hpad = 200, 300
+    out = Image.new("RGB", (W + 2 * hpad, H + 2 * pad), im.getpixel((4, 4)))
+    out.paste(im, (hpad, pad))
     d = ImageDraw.Draw(out)
     f, fs = font(26), font(20)
 
     def P(y, z):
         a, b = px(y, z)
-        return (a, b + pad)
+        return (a + hpad, b + pad)
     stern, bow = -G.r_out(180.0), G.R_RIM
     arrow_dim(d, P(stern, -700), P(bow, -700), "3,536.9 m overall, over the drive fairing", f)
     for yy in (stern, bow):
@@ -85,8 +118,8 @@ def beam(path_in, path_out, lines):
     d.line([P(-450, 100), P(450, 100)], fill=INK, width=2)
     d.text(P(460, 135), "collar crown +100", fill=INK, font=fs)
     d.text((20, 20), "LEVIATHAN-CLASS, REV H: beam elevation from starboard (bow right)", fill=(230, 230, 230), font=f)
-    d.text((20, 60), f"Measured from the render at {mpp:.2f} m/px: length {length:,.0f} m, height {height:,.0f} m", fill=INK, font=fs)
-    d.text((W - 360, H + 2 * pad - 50), "STERN  ←        → BOW", fill=(200, 200, 200), font=fs)
+    d.text((20, 60), f"Measured from the render at {mpp:.2f} m/px: {length:,.0f} m rim to emitter face (3,536.9 + 20 m standoff), {height:,.0f} m high", fill=INK, font=fs)
+    d.text((W + 2 * hpad - 380, H + 2 * pad - 50), "STERN  ←        → BOW", fill=(200, 200, 200), font=fs)
     out.save(path_out)
 
 
@@ -98,10 +131,16 @@ def plan(path_in, path_out, lines):
 
     def P(x, y):
         return (cx + x / mpp, cy - (y + 90.0) / mpp)
-    x0, x1 = extents(im, 0)
-    y0, y1 = extents(im, 1)
-    lines.append(("Diameter (plan view)", 3356.9, (x1 - x0 + 1) * mpp, mpp))
-    lines.append(("Length over drive fairing (plan view)", 3536.9, (y1 - y0 + 1) * mpp, mpp))
+    rs = []
+    for yy in (500.0, 300.0, -300.0, -500.0):
+        x0, x1 = line_extent(im, row=int(round(cy - (yy + 90.0) / mpp)))
+        half = (x1 - x0 + 1) * mpp / 2
+        rs.append(math.sqrt(half * half + yy * yy))
+    lines.append(("Diameter from four chords (plan view)", 3356.9, 2 * sum(rs) / len(rs), mpp))
+    xs = 300.0
+    y0, y1 = line_extent(im, col=int(round(cx + xs / mpp)))
+    pred = math.sqrt(G.R_RIM ** 2 - xs ** 2) - emitter_y_at_x(xs)
+    lines.append(("Bow rim to emitter face along x = +300 (plan view)", pred, (y1 - y0 + 1) * mpp, mpp))
     d = ImageDraw.Draw(im)
     f, fs = font(26), font(20)
     arrow_dim(d, P(-G.R_RIM, 1500), P(G.R_RIM, 1500), "3,356.9 m diameter", f, off=(0, -30))
@@ -127,8 +166,8 @@ def main():
     beam(os.path.join(d, "04_beam_elevation.png"), os.path.join(d, "04_beam_elevation_dimensioned.png"), lines)
     plan(os.path.join(d, "05_dorsal_plan.png"), os.path.join(d, "05_dorsal_plan_dimensioned.png"), lines)
     for name, spec, got, mpp in lines:
-        ok = abs(got - spec) <= 3 * mpp + 2
-        print(f"{'PASS' if ok else 'FLAG'}  {name}: spec {spec:,.1f} m, measured {got:,.1f} m (±{2 * mpp:.1f} m)")
+        ok = abs(got - spec) <= 3 * mpp
+        print(f"{'PASS' if ok else 'FLAG'}  {name}: expected {spec:,.1f} m, measured {got:,.1f} m (tolerance ±{3 * mpp:.1f} m, 3 px)")
 
 
 if __name__ == "__main__":

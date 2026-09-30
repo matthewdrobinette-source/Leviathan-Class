@@ -34,6 +34,7 @@ SHOTS = {
     "10_lance_released": ("CAM 10 Lance close-up", dict(CRUISING, core_release=0.2, screen_state=0, lighting=1), (100, 250, 3.0), 0.6, 0.3, {}),
     "11_action_state": ("CAM 11 Action state", ACTION, (76, 250, 3.4), 0.12, 0.0, {}),
     "12_campaign_posture": ("CAM 12 Campaign posture", dict(CRUISING, core_release=0.3, screen_state=3, booms_deployed=0), (74, 215, 3.0), 0.5, 0.0, {"planet": True}),
+    "14_rim_batteries_deployed": ("CAM 14 Rim batteries deployed", ACTION, (70, 225, 3.4), 0.15, 0.2, {}),
     "13_cavity_interior": ("CAM 13 Cavity interior", dict(CRUISING, screen_state=0), (120, 40, 1.5), 0.4, 0.0, {}),
 }
 

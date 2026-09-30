@@ -12,6 +12,7 @@ pitch. Nothing is placed by hand.
 | ![Ventral cavity](renders/02_ventral_cavity_flight_ops.png) | ![Section through Lances One and Five](renders/06b_section_through_lances.png) |
 | ![Core release](renders/08_core_release.png) | ![De-stack](renders/07_destack.png) |
 | ![Campaign posture](renders/12_campaign_posture.png) | ![Action state](renders/11_action_state.png) |
+| ![Rim batteries deployed](renders/14_rim_batteries_deployed.png) | ![Beam elevation, dimensioned](renders/04_beam_elevation_dimensioned.png) |
 
 ## What's here
 
@@ -47,7 +48,7 @@ Open `blender/Leviathan_RevH.blend`. It needs no add-ons and no script auto-run.
 
 2. **Text Editor → `configuration_states.py` → Run Script** switches between the three
    §17.1 states: Cruising, Action and Deployed.
-3. Cameras `CAM 01` to `CAM 13` hold the rendered viewpoints. Select one and press
+3. Cameras `CAM 01` to `CAM 14` hold the rendered viewpoints. Select one and press
    Numpad 0 to look through it.
 4. **Ghost view:** hide the *Hull slabs* collection and enable *Interior volumes (ghost
    view)* to see the Annex B allocation colour-coded. It shows galleries, spurs, lift
@@ -76,7 +77,7 @@ Change a datum in `model/lev_geom.py` and both the model and the clash check fol
 - 145 of the 159 figures the spec derives from others reproduce exactly.
 - The hull volume computed by the script and measured on the built mesh agree
   (4.791 billion m³).
-- The report lists 11 significant and 24 minor findings, each with a suggested fix. The
+- The report lists 11 significant and 25 minor findings, each with a suggested fix. The
   main ones:
   - The flotation figures predate the drive fairing.
   - Praetorian inherits several Lance rules that don't fit it.

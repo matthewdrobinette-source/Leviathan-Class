@@ -52,10 +52,17 @@ setc(collar_extended=1)
 leaf = ev("Iris leaf 01").matrix_world.translation
 check("iris leaves withdrawn when extended", leaf.length > 200, f"{leaf.length:.0f} m")
 
-for key, n in (("Fittings, Heavy rim battery", 591 * 2), ("Fittings, Medium face batteries", 746 * 2),
-               ("Fittings, Cavity defence", 640 * 2), ("Fittings, Sensor apertures, 88", 88)):
+MOUNTS = (("Fittings, Heavy rim battery", 591), ("Fittings, Medium face batteries", 746), ("Fittings, Cavity defence", 640))
+for key, n in MOUNTS:
     got = fit_count(key)
-    check(f"{key}: {n} instances (mount + shutter or open ring)", got == n, str(got))
+    check(f"{key}, stowed: {n} flush shutters", got == n, str(got))
+setc(batteries_deployed=1)
+for key, n in MOUNTS:
+    got = fit_count(key)
+    check(f"{key}, deployed: {n} mounts + {n} open apertures", got == 2 * n, str(got))
+setc(batteries_deployed=0)
+got = fit_count("Fittings, Sensor apertures, 88")
+check("Sensor apertures: 88 conformal panels", got == 88, str(got))
 
 z0 = ev("Lance One").matrix_world.translation.z
 setc(core_release=0.2)
