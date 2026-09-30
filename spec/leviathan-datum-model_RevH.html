@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leviathan-class — Revision H datum model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #12161c;
+  --panel: #e7e9ec;
+  --panel-2: #d9dce2;
+  --ink: #1b2027;
+  --ink-2: #55606e;
+  --rule: #c3c8d0;
+  --amber: #c7912e;
+  --blue: #3f8fc4;
+  --focus: #2f6fb0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --panel: #1f242b; --panel-2: #262c34; --ink: #e5e8ec; --ink-2: #9aa4b1; --rule: #39414b;
+  }
+}
+:root[data-theme="dark"] { --panel: #1f242b; --panel-2: #262c34; --ink: #e5e8ec; --ink-2: #9aa4b1; --rule: #39414b; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: Barlow, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.35; overflow: hidden;
+  font-variant-numeric: tabular-nums; }
+#app { position: relative; width: 100%; height: 100%; }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+#side { position: absolute; top: 0; left: 0; bottom: 0; width: 336px; max-width: 100%;
+  background: var(--panel); color: var(--ink); overflow-y: auto; overscroll-behavior: contain;
+  border-right: 1px solid var(--rule); padding: 0 0 24px; }
+#side::-webkit-scrollbar { width: 8px; } #side::-webkit-scrollbar-thumb { background: var(--rule); }
+
+.title { padding: 18px 20px 14px; border-bottom: 1px solid var(--rule); }
+.title h1 { margin: 0; font-family: "Barlow Semi Condensed", Barlow, sans-serif; font-weight: 600; font-size: 22px; line-height: 1.1; letter-spacing: 0.01em; }
+.title .sub { margin: 6px 0 0; color: var(--ink-2); font-size: 13px; }
+.particulars { margin: 12px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-size: 12.5px; }
+.particulars dt, .particulars span { color: var(--ink-2); }
+.particulars b { font-weight: 500; text-align: right; }
+
+section.block { padding: 14px 20px 6px; border-bottom: 1px solid var(--rule); }
+section.block h2 { margin: 0 0 10px; font-family: "Barlow Semi Condensed", Barlow, sans-serif; font-weight: 600; font-size: 15px; }
+section.block p.hint { margin: 6px 0 8px; font-size: 12px; color: var(--ink-2); }
+
+.seg { display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+.seg button { flex: 1; background: transparent; border: 0; color: var(--ink); padding: 7px 4px; font: inherit; font-weight: 500; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.seg button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; }
+.row label { flex: 1; }
+.row .val { min-width: 54px; text-align: right; color: var(--ink-2); font-size: 12.5px; }
+input[type=range] { width: 100%; accent-color: var(--ink); margin: 4px 0 2px; }
+select { font: inherit; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 3px; background: var(--panel-2); color: var(--ink); }
+.check { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
+.check input { accent-color: var(--ink); width: 15px; height: 15px; margin: 0; }
+.check span.note { margin-left: auto; color: var(--ink-2); font-size: 12px; }
+
+/* stack diagram for layers */
+.stack { list-style: none; margin: 0; padding: 0; }
+.stack li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.stack li .bar { width: 22px; height: 12px; border-radius: 1px; background: var(--bar, #8d949b); flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+.stack li.cores .bar { border-radius: 50%; width: 12px; margin: 0 5px; }
+.stack li label { flex: 1; cursor: pointer; }
+.stack li .dz { color: var(--ink-2); font-size: 12px; }
+.stack li input { accent-color: var(--ink); margin: 0; }
+.stack li.spacer { height: 6px; padding: 0; }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.small { font-size: 12px; color: var(--ink-2); }
+.links { display: flex; flex-wrap: wrap; gap: 6px; }
+.links button { font: inherit; font-size: 13px; padding: 5px 9px; border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink); border-radius: 3px; cursor: pointer; }
+.links button:hover { border-color: var(--ink-2); }
+
+
+.report { font-size: 12.5px; margin-top: 8px; }
+.report .sum { font-weight: 600; margin-bottom: 4px; }
+.report ul { list-style: none; margin: 0; padding: 0; }
+.report li { padding: 2px 0 2px 16px; position: relative; }
+.report li::before { position: absolute; left: 0; font-weight: 600; }
+.report li.clash::before { content: "×"; color: #b23a2e; }
+.report li.viol::before { content: "!"; color: #b23a2e; }
+.report li.disp::before { content: "~"; color: var(--ink-2); }
+.report li.disp { color: var(--ink-2); }
+.report li.note::before { content: "·"; color: var(--ink-2); }
+.report li.note { color: var(--ink-2); }
+.report li.ok::before { content: "✓"; color: #3b8f4a; }
+details.datums { margin-top: 8px; font-size: 12px; }
+details.datums summary { cursor: pointer; font-weight: 500; color: var(--ink-2); }
+details.datums ul { list-style: none; margin: 6px 0 0; padding: 0; }
+details.datums li { padding: 2px 0; color: var(--ink-2); }
+#readout { position: absolute; left: 356px; bottom: 14px; color: #d9dde3; font-size: 13px; pointer-events: none;
+  background: rgba(18,22,28,.55); padding: 6px 10px; border-radius: 3px; max-width: calc(100% - 380px); }
+#readout b { font-weight: 500; color: #fff; }
+#legend { position: absolute; right: 14px; top: 14px; color: #d9dde3; font-size: 11.5px; background: rgba(18,22,28,.62);
+  padding: 8px 10px; border-radius: 3px; display: none; pointer-events: none; }
+#legend div { display: flex; align-items: center; gap: 7px; padding: 1px 0; }
+#legend i { width: 14px; height: 9px; display: inline-block; }
+#sideToggle { display: none; position: absolute; left: 12px; top: 12px; z-index: 5; font: inherit; font-weight: 500;
+  padding: 7px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--rule); border-radius: 3px; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; color: #c9ced6; font-size: 15px; pointer-events: none; }
+
+@media (max-width: 760px) {
+  #side { top: auto; height: 62%; width: 100%; border-right: 0; border-top: 1px solid var(--rule);
+    transform: translateY(100%); transition: transform .25s ease; }
+  #side.open { transform: translateY(0); }
+  #sideToggle { display: block; }
+  #readout { left: 12px; bottom: 12px; max-width: calc(100% - 24px); }
+  #legend { top: 56px; right: 12px; }
+}
+@media (max-width: 760px) { #side.open ~ #readout, #side.open ~ #legend { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { #side { transition: none; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c"></canvas>
+  <div id="loading">Building the hull from the Annex B datum set…</div>
+  <button id="sideToggle" type="button" aria-controls="side" aria-expanded="false">Controls</button>
+
+  <aside id="side">
+    <div class="title">
+      <h1>Leviathan-class capital assault carrier</h1>
+      <p class="sub">Build specification, Revision H. Geometry generated from the Annex B modeling datum set: every surface is a profile curve, every station an angle and a radius, the deck stack one arithmetic series.</p>
+      <dl class="particulars">
+        <dt>Overall diameter</dt><b>3,356.9 m</b>
+        <dt>Length over drive fairing</dt><b>3,536.9 m</b>
+        <dt>Height, collar extended / stowed</dt><b>730 / 710 m</b>
+        <dt>Rim depth</dt><b>630 m</b>
+        <dt>Lathe segments</dt><b>1,024</b>
+        <dt>Primary deck pitch</dt><b>6 m</b>
+      </dl>
+    </div>
+
+    <section class="block">
+      <h2>Configuration state</h2>
+      <div class="seg" role="group" aria-label="Configuration state">
+        <button type="button" data-state="cruising" aria-pressed="true">Cruising</button>
+        <button type="button" data-state="action" aria-pressed="false">Action</button>
+        <button type="button" data-state="deployed" aria-pressed="false">Deployed</button>
+      </div>
+      <label class="check"><input type="checkbox" id="collarStowed"> Bridge collar stowed, iris shutters closed</label>
+      <label class="check"><input type="checkbox" id="batteries"> Batteries deployed from their recesses</label>
+      <div class="row"><label for="screenMode">Cavity screen</label>
+        <select id="screenMode"><option value="off">Off</option><option value="attenuating" selected>Attenuating, at the rim plane</option><option value="hardened">Hardened, 10 m below</option><option value="inboard">Drawn inboard against the dish</option></select></div>
+      <div class="row"><label for="release">Core release</label><span class="val" id="releaseVal">seated</span></div>
+      <input type="range" id="release" min="0" max="1" step="0.005" value="0" aria-label="Core release">
+      <p class="hint">Releases in opposed pairs, One/Five through Four/Eight, then Praetorian.</p>
+    </section>
+
+    <section class="block">
+      <h2>De-stack scheme</h2>
+      <div class="row"><label for="explode">Explode along the axis</label><span class="val" id="explodeVal">assembled</span></div>
+      <input type="range" id="explode" min="0" max="1" step="0.005" value="0" aria-label="De-stack">
+      <p class="hint">Eight slabs part at 150 m, the aft block draws 600 m aft, the nine cores drop 900 m. Cut faces are drawn only when the stack is open.</p>
+    </section>
+
+    <section class="block">
+      <h2>Inspection</h2>
+      <label class="check"><input type="checkbox" id="section"> Cross-section through the axis</label>
+      <div class="row"><label for="sectionTheta">Section longitude</label><span class="val" id="sectionThetaVal">0°</span></div>
+      <input type="range" id="sectionTheta" min="0" max="180" step="0.5" value="0" aria-label="Section longitude">
+      <label class="check"><input type="checkbox" id="sectionFlip"> Keep the other half</label>
+      <label class="check"><input type="checkbox" id="zones" checked> Tint compartments in the section</label>
+      <label class="check"><input type="checkbox" id="deckGrid"> Deck lines on the hull, 6 m pitch</label>
+      <label class="check"><input type="checkbox" id="wire"> Wireframe</label>
+      <p class="hint">Lower gallery deck z = −236 and upper gallery deck z = −170 are drawn in amber. Wall meshes are sampled on the deck levels, so the wireframe rows are the decks.</p>
+    </section>
+
+    <section class="block">
+      <h2>Interior allocation</h2>
+      <div class="seg" role="group" aria-label="Interior revision">
+        <button type="button" data-rev="F" aria-pressed="false">Rev F as written</button>
+        <button type="button" data-rev="G" aria-pressed="true">Rev H as specified</button>
+      </div>
+      <label class="check"><input type="checkbox" id="interior3d"> Interior volumes, hull ghosted</label>
+      <p class="hint">The chosen allocation feeds the section tints, the ghosted volumes and the clash check. Voids are tested against the hull envelope too; only the launch mouths are exempt, since they are meant to cut it. Volumes hide while the stack is open; the section keeps following it.</p>
+      <div class="report" id="clashReport"><div class="sum">Checking…</div></div>
+      <details class="datums"><summary>Datums in this allocation</summary><ul id="datumList"></ul></details>
+    </section>
+
+    <section class="block">
+      <h2>Hull layers</h2>
+      <ul class="stack" id="layerList"></ul>
+      <p class="hint">Listed in de-stack order, top of the stack first.</p>
+      <h2 style="margin-top:12px">Cores</h2>
+      <ul class="stack twocol" id="coreList"></ul>
+      <div class="links" style="margin-top:6px"><button type="button" id="coresAll">All cores</button><button type="button" id="coresNone">No cores</button></div>
+    </section>
+
+    <section class="block">
+      <h2>Fittings</h2>
+      <label class="check"><input type="checkbox" id="fBatteries" checked> Batteries, 594 heavy, 702 medium</label>
+      <label class="check"><input type="checkbox" id="fSensors" checked> Sensor apertures and shield emitters</label>
+      <label class="check"><input type="checkbox" id="fPD"> Point defence mounts</label>
+      <label class="check"><input type="checkbox" id="fMouths" checked> Launch mouths and boom recesses</label>
+      <label class="check"><input type="checkbox" id="fEmitter" checked> Drive emitter face</label>
+      <label class="check"><input type="checkbox" id="fLabels" checked> Labels</label>
+    </section>
+
+    <section class="block">
+      <h2>View</h2>
+      <div class="links">
+        <button type="button" data-view="iso">Reset</button>
+        <button type="button" data-view="dorsal">Dorsal</button>
+        <button type="button" data-view="ventral">Ventral</button>
+        <button type="button" data-view="beam">Beam</button>
+        <button type="button" data-view="bow">Bow</button>
+        <button type="button" data-view="stern">Stern</button>
+      </div>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="autoRotate"> Slow orbit</label>
+      <p class="hint">Drag to orbit, right-drag or two fingers to pan, wheel or pinch to zoom. Bow is at 0°, stern at 180°, starboard positive.</p>
+    </section>
+  </aside>
+
+  <div id="readout"></div>
+  <div id="legend"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script id="model">
+/* ============================================================================
+   MODEL — pure geometry from Annex B. No DOM here.
+   Frame: origin on the axis at the dorsal rim plane. three.js Y is ship z
+   (positive dorsal). Longitude θ from the bow: x = r sin θ, three.js z = −r cos θ,
+   so the bow is −Z, the stern +Z, starboard +X.
+   ========================================================================== */
+const LEV = (() => {
+  const D = Math.PI / 180;
+  const RRIM = 1678.45, RCAP = 25638, CAPK = Math.sqrt(RCAP * RCAP - RRIM * RRIM);
+  const NTH = 1024;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // ---- profile curves (all from Annex B.2) ----
+  const capZ = r => r < RRIM ? Math.sqrt(RCAP * RCAP - r * r) - CAPK : 0;        // dorsal spherical cap
+  const capSlope = r => r < RRIM ? -r / Math.sqrt(RCAP * RCAP - r * r) : 0;
+  const domeZ = r => Math.sqrt(1206 * 1206 - r * r) - 1126;                       // fixed cap dome, +80 on axis
+  const domeSlope = r => -r / Math.sqrt(1206 * 1206 - r * r);
+  const crownZ = r => -420 - 50 * (r / 1050) * (r / 1050);                        // ventral crown paraboloid
+  const crownSlope = r => -100 * r / (1050 * 1050);
+  const knR = phi => 1050 + 80 * Math.sin(phi);                                   // knuckle quarter-ellipse
+  const knZ = phi => -470 - 160 * (1 - Math.cos(phi));
+  const knPhiFromZ = z => Math.acos(clamp((z + 630) / 160, 0, 1));
+  const knZatR = r => { const s = clamp((r - 1050) / 80, 0, 1); return -470 - 160 * (1 - Math.sqrt(1 - s * s)); };
+  const bottomZ = r => r >= 1130 ? -630 : (r >= 1050 ? knZatR(r) : crownZ(r));
+  const cavR = z => z <= -470 ? knR(knPhiFromZ(z)) : (z < -420 ? 1050 * Math.sqrt((-420 - z) / 50) : 0);
+  const normTh = t => ((t % 360) + 360) % 360;
+  const Rout = t => { t = normTh(t); return (t >= 135 && t <= 225) ? RRIM + 180 * Math.cos(2 * (t - 180) * D) : RRIM; };
+  const RoutSlope = t => { t = normTh(t); return (t > 135 && t < 225) ? -360 * Math.sin(2 * (t - 180) * D) : 0; };
+  const inAftArc = t => { t = normTh(t); return t >= 135 && t <= 225; };
+
+  const P = (r, th, z, o) => o.set(r * Math.sin(th * D), z, -r * Math.cos(th * D));
+  const radial = (th, o) => o.set(Math.sin(th * D), 0, -Math.cos(th * D));
+  const tangential = (th, o) => o.set(Math.cos(th * D), 0, Math.sin(th * D));
+
+  // ---- cores (B.6) ----
+  const CORES = [{ name: 'Praetorian', short: 'Praetorian', rc: 348, r: 0, th: 0, zc: -282, central: true }];
+  const WORDS = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+  for (let n = 0; n < 8; n++) CORES.push({ name: 'Lance ' + WORDS[n], short: 'Lance ' + WORDS[n], rc: 210, r: 800, th: 22.5 + 45 * n, zc: -290, central: false });
+  CORES.forEach(c => { c.x = c.r * Math.sin(c.th * D); c.zp = -c.r * Math.cos(c.th * D); c.bowlR = c.rc + 2; c.wellR = c.rc + 6; });
+  const bowlRadiusAt = (c, z) => { const d = z - c.zc; return (d >= 0 && d < c.bowlR) ? Math.sqrt(c.bowlR * c.bowlR - d * d) : 0; };
+
+  // ---- deck grid ----
+  const DECK0 = -236, PITCH = 6;
+  const deckRows = (z1, z2) => { const out = [z1]; for (let n = -65; n <= 46; n++) { const z = DECK0 + PITCH * n; if (z > z1 + 0.01 && z < z2 - 0.01) out.push(z); } out.push(z2); return out; };
+  const segs = (th0, th1) => Math.max(2, Math.round(NTH * (th1 - th0) / 360));
+
+  // ---- generic grid builder with analytic normals and consistent winding ----
+  function grid(nu, nv, fn, nfn) {
+    const W = nu + 1, H = nv + 1;
+    const pos = new Float32Array(W * H * 3), nor = new Float32Array(W * H * 3);
+    const p = new THREE.Vector3(), n = new THREE.Vector3();
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const u = i / nu, v = j / nv; fn(u, v, p); nfn(u, v, n); n.normalize();
+      const k = (j * W + i) * 3; pos[k] = p.x; pos[k + 1] = p.y; pos[k + 2] = p.z; nor[k] = n.x; nor[k + 1] = n.y; nor[k + 2] = n.z;
+    }
+    const idx = new Uint32Array(nu * nv * 6); let t = 0;
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+      const a = j * W + i, b = a + 1, c = a + W, d = c + 1;
+      idx[t++] = a; idx[t++] = c; idx[t++] = b; idx[t++] = b; idx[t++] = c; idx[t++] = d;
+    }
+    // orientation: compare the first non-degenerate face with the analytic normal
+    const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), fnrm = new THREE.Vector3();
+    let flip = false;
+    for (let f = 0; f < idx.length; f += 3) {
+      A.fromArray(pos, idx[f] * 3); B.fromArray(pos, idx[f + 1] * 3); C.fromArray(pos, idx[f + 2] * 3);
+      fnrm.subVectors(B, A).cross(C.clone().sub(A));
+      if (fnrm.lengthSq() < 1e-4) continue;
+      n.fromArray(nor, idx[f] * 3); if (n.lengthSq() < 0.5) continue;
+      flip = fnrm.dot(n) < 0; break;
+    }
+    if (flip) for (let f = 0; f < idx.length; f += 3) { const tmp = idx[f + 1]; idx[f + 1] = idx[f + 2]; idx[f + 2] = tmp; }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    g.setIndex(new THREE.BufferAttribute(idx, 1));
+    return g;
+  }
+  function merge(list) {
+    list = list.filter(Boolean); if (!list.length) return null; if (list.length === 1) return list[0];
+    let nv = 0, ni = 0; for (const g of list) { nv += g.attributes.position.count; ni += g.index.count; }
+    const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = new Uint32Array(ni);
+    let ov = 0, oi = 0;
+    for (const g of list) {
+      pos.set(g.attributes.position.array, ov * 3); nor.set(g.attributes.normal.array, ov * 3);
+      const ia = g.index.array; for (let i = 0; i < ia.length; i++) idx[oi + i] = ia[i] + ov;
+      ov += g.attributes.position.count; oi += ia.length;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    g.setIndex(new THREE.BufferAttribute(idx, 1)); return g;
+  }
+
+  // ---- surface builders ----
+  const rr = new THREE.Vector3(), tt = new THREE.Vector3();
+  function rimWall(th0, th1, z1, z2) {
+    const rows = deckRows(z1, z2), nv = rows.length - 1, nu = segs(th0, th1);
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u; P(Rout(th), th, rows[Math.round(v * nv)], o); },
+      (u, v, o) => { const th = th0 + (th1 - th0) * u; radial(th, rr); tangential(th, tt); o.copy(rr).multiplyScalar(Rout(th)).addScaledVector(tt, -RoutSlope(th)); });
+  }
+  function dorsalCap(r0, r1, th0, th1) {
+    const nu = segs(th0, th1), nv = Math.max(3, Math.round((r1 - r0) / 25));
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u, r = r0 + (r1 - r0) * v; P(r, th, capZ(r), o); },
+      (u, v, o) => { const th = th0 + (th1 - th0) * u, r = r0 + (r1 - r0) * v; radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -capSlope(r)); });
+  }
+  function dorsalAft() { // r from 1000 to Rout(θ): cap inside the rim circle, flat at z = 0 across the fairing lune
+    const th0 = 135, th1 = 225, nu = segs(th0, th1), nv = 40, split = 27;
+    const rAt = (th, v) => { const jj = v * nv; return jj <= split ? 1000 + (RRIM - 1000) * (jj / split) : RRIM + (Rout(th) - RRIM) * ((jj - split) / (nv - split)); };
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u, r = rAt(th, v); P(r, th, capZ(r), o); },
+      (u, v, o) => { const th = th0 + (th1 - th0) * u, r = rAt(th, v); radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -capSlope(r)); });
+  }
+  function dome() {
+    const nu = 512, nv = 16;
+    return grid(nu, nv, (u, v, o) => { const th = 360 * u, r = 250 * v; P(r, th, domeZ(r), o); },
+      (u, v, o) => { const th = 360 * u, r = 250 * v; radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -domeSlope(r)); });
+  }
+  function cylWall(r, th0, th1, z1, z2, sign) {
+    const rows = deckRows(z1, z2), nv = rows.length - 1, nu = segs(th0, th1);
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u; P(r, th, rows[Math.round(v * nv)], o); },
+      (u, v, o) => { radial(th0 + (th1 - th0) * u, o); o.multiplyScalar(sign); });
+  }
+  function annulus(r0, r1, th0, th1, z, sign, nv) {
+    const nu = segs(th0, th1); nv = nv || 1; const r1f = typeof r1 === 'function' ? r1 : () => r1;
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u; P(r0 + (r1f(th) - r0) * v, th, z, o); }, (u, v, o) => o.set(0, sign, 0));
+  }
+  function knuckle(phi0, phi1, th0, th1) {
+    const nu = segs(th0, th1), nv = Math.max(3, Math.round((phi1 - phi0) / (Math.PI / 2) * 24));
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u, phi = phi0 + (phi1 - phi0) * v; P(knR(phi), th, knZ(phi), o); },
+      (u, v, o) => { const th = th0 + (th1 - th0) * u, phi = phi0 + (phi1 - phi0) * v; radial(th, rr); o.set(0, -80 * Math.cos(phi), 0).addScaledVector(rr, -160 * Math.sin(phi)); });
+  }
+  function crown(r0, r1, th0, th1) {
+    const nu = segs(th0, th1), nv = Math.max(2, Math.round((r1 - r0) / 20));
+    return grid(nu, nv, (u, v, o) => { const th = th0 + (th1 - th0) * u, r = r0 + (r1 - r0) * v; P(r, th, crownZ(r), o); },
+      (u, v, o) => { const th = th0 + (th1 - th0) * u, r = r0 + (r1 - r0) * v; radial(th, rr); o.set(0, -1, 0).addScaledVector(rr, crownSlope(r)); });
+  }
+  function wellWall(c) { // cylinder from the crown up to the core equator
+    const rho = c.wellR, nu = c.central ? 256 : 128, nv = 28;
+    return grid(nu, nv, (u, v, o) => { const l = 2 * Math.PI * u, x = c.x + rho * Math.cos(l), zp = c.zp + rho * Math.sin(l); const zb = crownZ(Math.hypot(x, zp)); o.set(x, zb + (c.zc - zb) * v, zp); },
+      (u, v, o) => { const l = 2 * Math.PI * u; o.set(-Math.cos(l), 0, -Math.sin(l)); });
+  }
+  function sphereZone(cx, cy, cz, rho, za, zb, nu, sign) {
+    za = Math.max(za, cy - rho); zb = Math.min(zb, cy + rho); if (zb - za < 0.01) return null;
+    const pa = Math.asin(clamp((za - cy) / rho, -1, 1)), pb = Math.asin(clamp((zb - cy) / rho, -1, 1));
+    const nv = Math.max(3, Math.ceil((zb - za) / 6));
+    return grid(nu, nv, (u, v, o) => { const l = 2 * Math.PI * u, ph = pa + (pb - pa) * v; o.set(cx + rho * Math.cos(ph) * Math.cos(l), cy + rho * Math.sin(ph), cz + rho * Math.cos(ph) * Math.sin(l)); },
+      (u, v, o) => { const l = 2 * Math.PI * u, ph = pa + (pb - pa) * v; o.set(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l)).multiplyScalar(sign); });
+  }
+  function radialWall(th, rStart, zlo, zhi, sign) {
+    const nu = Math.max(4, Math.round((RRIM - rStart) / 12)), nv = 40;
+    return grid(nu, nv, (u, v, o) => { const r = rStart + (RRIM - rStart) * u; P(r, th, zlo(r) + (zhi(r) - zlo(r)) * v, o); },
+      (u, v, o) => { tangential(th, o); o.multiplyScalar(sign); });
+  }
+  // interior cap face at height z: the hull's plan section minus the central circle rIn; Lance holes are shader cutouts
+  function capFace(z, rIn, sign) {
+    const parts = [];
+    if (rIn < 1000) parts.push(annulus(rIn, 1000, 0, 360, z, sign, 1));
+    if (Math.max(rIn, 1000) < RRIM) parts.push(annulus(Math.max(rIn, 1000), RRIM, -135, 135, z, sign, 1));
+    return merge(parts);
+  }
+
+  // ---- layer definitions (B.12) ----
+  const ZB = [-630, -506, -248, -224, -182, -158, -50];
+  const LAYERS = [
+    { id: 'ventral', name: 'Ventral traffic and shell', z: [-630, -506], draw: 'ventral', k: 1, bar: '#6e747c' },
+    { id: 'citadel', name: 'Citadel and endurance plant', z: [-506, -248], draw: 'dorsal', k: 1, bar: '#8d949b' },
+    { id: 'lg', name: 'Lower gallery', z: [-248, -224], draw: 'dorsal', k: 2, bar: '#c7912e' },
+    { id: 'handling', name: 'Handling and stores', z: [-224, -182], draw: 'dorsal', k: 3, bar: '#8d949b' },
+    { id: 'ug', name: 'Upper gallery', z: [-182, -158], draw: 'dorsal', k: 4, bar: '#c7912e' },
+    { id: 'berthing', name: 'Berthing and air group', z: [-158, -50], draw: 'dorsal', k: 5, bar: '#8d949b' },
+    { id: 'dorsal', name: 'Dorsal shell and battery band', z: [-50, 100], draw: 'dorsal', k: 6, bar: '#5d6369' },
+    { id: 'cap', name: 'Collar and fixed cap', z: [-10, 100], draw: 'dorsal', k: 7, bar: '#5d6369' },
+    { id: 'aft', name: 'Aft block', z: [-630, 100], draw: 'aft', k: 0, bar: '#6e747c' },
+  ];
+  const AFT_ZLO = crownZ(1000), AFT_ZHI = capZ(1000);
+
+  // Each layer: { plating:[geo], interior:[geo], caps:[{geo, z, cut:{...}}], notch:[geo], split:[{geo, mode}] }
+  function buildLayers() {
+    const out = {};
+    for (const L of LAYERS) out[L.id] = { plating: [], interior: [], caps: [], notch: [], split: [] };
+    const lanceCut = z => CORES.filter(c => !c.central).map(c => ({ x: c.x, z: c.zp, r: bowlRadiusAt(c, z) }));
+    const lanceWellCut = () => CORES.filter(c => !c.central).map(c => ({ x: c.x, z: c.zp, r: c.wellR }));
+    const pr = CORES[0];
+    const splitCores = CORES.filter(c => !c.central && inAftArc(c.th) && c.r + c.wellR > 1000); // Lances Four and Five straddle r = 1000
+
+    // ----- horizontal slabs 0..6 -----
+    for (let i = 0; i < 7; i++) {
+      const L = LAYERS[i], z1 = L.z[0], z2 = (i === 6) ? 0 : L.z[1], G = out[L.id];
+      // outer plating
+      if (i === 0) {
+        G.plating.push(annulus(1130, Rout, -135, 135, -630, -1, 14));
+        G.plating.push(knuckle(knPhiFromZ(-506), Math.PI / 2, -135, 135));
+      }
+      if (i === 1) {
+        G.plating.push(knuckle(0, knPhiFromZ(-506), -135, 135));
+        G.plating.push({ geo: crown(354, 1000, 0, 360), cut: lanceWellCut() });
+        G.plating.push({ geo: crown(1000, 1050, -135, 135), cut: lanceWellCut() });
+        // wells
+        G.interior.push(wellWall(pr));
+        for (const c of CORES) if (!c.central) {
+          const g = wellWall(c);
+          if (splitCores.includes(c)) G.split.push({ geo: g, mode: 1 }); else G.interior.push(g);
+        }
+      }
+      if (i === 6) {
+        G.plating.push(dorsalCap(450, 1000, 0, 360));
+        G.plating.push(dorsalCap(1000, RRIM, -135, 135));
+        G.plating.push(cylWall(450, 0, 360, -10, capZ(450), -1));       // collar well outer wall
+        G.caps.push({ geo: annulus(bowlRadiusAt(pr, -10), 450, 0, 360, -10, 1, 1), z: -10, cut: [] });
+      }
+      G.plating.push(rimWall(-135, 135, z1, z2));
+      // bowl zones
+      for (const c of CORES) {
+        const zb = c.central ? Math.min(z2 === 0 ? -10 : z2, c.zc + c.bowlR) : Math.min(z2 === 0 ? 0 : z2, c.zc + c.bowlR);
+        const g = sphereZone(c.x, c.zc, c.zp, c.bowlR, Math.max(z1, c.zc), zb, c.central ? 256 : 128, -1);
+        if (!g) continue;
+        if (splitCores.includes(c) && c.zp !== undefined && (c.r + bowlRadiusAt(c, Math.max(z1, c.zc)) > 1000)) G.split.push({ geo: g, mode: 1 }); else G.interior.push(g);
+      }
+      // interior faces shown only when the stack is open
+      if (i > 0) {
+        const zlo = r => Math.max(z1, bottomZ(r)), zhi = (i === 6) ? (r => capZ(r)) : (() => z2);
+        G.notch.push(radialWall(135, 1000, zlo, zhi, 1));
+        G.notch.push(radialWall(225, 1000, zlo, zhi, -1));
+        G.notch.push({ geo: cylWall(1000, 135, 225, Math.max(z1, AFT_ZLO), Math.min(i === 6 ? AFT_ZHI : z2, AFT_ZHI), 1), bite: true });
+      } else {
+        const zlo = r => Math.max(z1, bottomZ(r)), zhi = () => z2;
+        G.notch.push(radialWall(135, cavR(z2), zlo, zhi, 1));
+        G.notch.push(radialWall(225, cavR(z2), zlo, zhi, -1));
+      }
+      // caps
+      const rInAt = z => z <= -420 ? Math.max(cavR(z), 354) : (bowlRadiusAt(pr, z) || (z < pr.zc ? pr.wellR : 0));
+      const gal = (i === 2 || i === 4);
+      if (i > 0) G.caps.push({ geo: capFace(z1, rInAt(z1), -1), z: z1, cut: lanceCut(z1), gal });
+      if (i < 6) G.caps.push({ geo: capFace(z2, rInAt(z2), 1), z: z2, cut: lanceCut(z2), gal });
+    }
+    // ----- collar and fixed cap layer -----
+    {
+      const G = out.cap;
+      G.plating.push(dome());
+      G.plating.push(cylWall(250, 0, 360, -10, domeZ(250), 1));
+      G.plating.push(annulus(250, 450, 0, 360, -10, 1, 2));                 // well floor
+      G.caps.push({ geo: annulus(bowlRadiusAt(pr, -10), 250, 0, 360, -10, -1, 1), z: -10, cut: [] });
+      G.interior.push(sphereZone(0, pr.zc, 0, pr.bowlR, -10, pr.zc + pr.bowlR, 256, -1));
+    }
+    // ----- aft block -----
+    {
+      const G = out.aft;
+      G.plating.push({ geo: dorsalAft(), cut: [], color: 'dorsal' });
+      G.plating.push(rimWall(135, 225, -630, 0));
+      G.plating.push(annulus(1130, Rout, 135, 225, -630, -1, 14));
+      G.plating.push(knuckle(0, Math.PI / 2, 135, 225));
+      G.plating.push({ geo: crown(1000, 1050, 135, 225), cut: lanceWellCut() });
+      G.notch.push({ geo: cylWall(1000, 135, 225, AFT_ZLO, AFT_ZHI, -1), bite: true });
+      G.notch.push(radialWall(135, 1000, bottomZ, capZ, -1));
+      G.notch.push(radialWall(225, 1000, bottomZ, capZ, 1));
+      for (const c of splitCores) {
+        G.split.push({ geo: wellWall(c), mode: -1 });
+        for (let i = 1; i < 6; i++) {
+          const z1 = LAYERS[i].z[0], z2 = LAYERS[i].z[1];
+          if (c.r + bowlRadiusAt(c, Math.max(z1, c.zc)) <= 1000) continue;
+          const g = sphereZone(c.x, c.zc, c.zp, c.bowlR, Math.max(z1, c.zc), Math.min(z2, c.zc + c.bowlR), 128, -1);
+          if (g) G.split.push({ geo: g, mode: -1 });
+        }
+      }
+    }
+    return out;
+  }
+
+  // ---- drive emitter: sixteen segments standing 20 m proud of the aft boundary ----
+  function emitterPanels() {
+    const faces = [], sides = [];
+    for (let k = 0; k < 16; k++) {
+      const a = 135 + 5.625 * k + 0.2, b = 135 + 5.625 * (k + 1) - 0.2, z1 = -612, z2 = -18, proud = 20;
+      const Rp = th => Rout(th) + proud;
+      faces.push(grid(6, 8, (u, v, o) => { const th = a + (b - a) * u; P(Rp(th), th, z1 + (z2 - z1) * v, o); },
+        (u, v, o) => { const th = a + (b - a) * u; radial(th, rr); tangential(th, tt); o.copy(rr).multiplyScalar(Rout(th)).addScaledVector(tt, -RoutSlope(th)); }));
+      sides.push(grid(6, 1, (u, v, o) => { const th = a + (b - a) * u; P(Rout(th) + proud * v, th, z2, o); }, (u, v, o) => o.set(0, 1, 0)));
+      sides.push(grid(6, 1, (u, v, o) => { const th = a + (b - a) * u; P(Rout(th) + proud * v, th, z1, o); }, (u, v, o) => o.set(0, -1, 0)));
+      sides.push(grid(1, 8, (u, v, o) => P(Rout(a) + proud * u, a, z1 + (z2 - z1) * v, o), (u, v, o) => { tangential(a, o); o.multiplyScalar(-1); }));
+      sides.push(grid(1, 8, (u, v, o) => P(Rout(b) + proud * u, b, z1 + (z2 - z1) * v, o), (u, v, o) => tangential(b, o)));
+    }
+    return { face: merge(faces), side: merge(sides) };
+  }
+
+  // ---- bridge collar (B.9): 65 m tall ring, crown at +100 extended, 16 viewport bays ----
+  function collar() {
+    const parts = { plating: [], glazing: [] };
+    parts.plating.push(cylWall(448, 0, 360, 35, 70, 1));
+    parts.glazing.push(cylWall(448, 0, 360, 70, 88, 1));
+    parts.plating.push(cylWall(448, 0, 360, 88, 100, 1));
+    parts.plating.push(cylWall(252, 0, 360, 35, 100, -1));
+    parts.plating.push(annulus(252, 448, 0, 360, 100, 1, 2));
+    // piers between bays, 37 m wide at mid-radius, on 11.25° + 22.5°k
+    const piers = [];
+    for (let k = 0; k < 16; k++) {
+      const c = 11.25 + 22.5 * k, half = (37 / 2) / 350 / D;
+      piers.push(grid(2, 2, (u, v, o) => P(449.5, c - half + 2 * half * u, 69 + 20 * v, o), (u, v, o) => radial(c, o)));
+    }
+    parts.plating.push(merge(piers));
+    return { plating: merge(parts.plating), glazing: merge(parts.glazing) };
+  }
+  function shutters() { // iris shutters carrying the dorsal curve across the well mouth
+    return annulus(250, 450, 0, 360, 0, 1, 6); // placeholder z; built properly below
+  }
+  function shutterSurface() {
+    const nu = NTH, nv = 6;
+    return grid(nu, nv, (u, v, o) => { const th = 360 * u, r = 250 + 200 * v; P(r, th, capZ(r) + 0.3, o); },
+      (u, v, o) => { const th = 360 * u, r = 250 + 200 * v; radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -capSlope(r)); });
+  }
+  function shutterSeams() {
+    const pts = [];
+    for (let k = 0; k < 16; k++) { const th = 11.25 * k * 2; const a = new THREE.Vector3(), b = new THREE.Vector3(); P(251, th, capZ(251) + 1.2, a); P(449, th, capZ(449) + 1.2, b); pts.push(a, b); }
+    return new THREE.BufferGeometry().setFromPoints(pts);
+  }
+  // ---- cavity screen surfaces ----
+  function screenFlat(z) { return annulus(0, 1130, 0, 360, z, -1, 4); }
+  function screenDish() {
+    return grid(NTH, 24, (u, v, o) => { const th = 360 * u, r = 1130 * v; P(r, th, bottomZ(r) - 10, o); }, (u, v, o) => o.set(0, -1, 0));
+  }
+
+  // ---- cores: sphere bands and decals in the core's local frame (x = radial outward, z = tangential) ----
+  function coreGeometry(c) {
+    const rc = c.rc, nu = c.central ? 192 : 128;
+    const band = (la0, la1, sign, rho) => grid(nu, Math.max(4, Math.round((la1 - la0) * D * rho / 8)),
+      (u, v, o) => { const l = 2 * Math.PI * u, ph = (la0 + (la1 - la0) * v) * D; o.set(rho * Math.cos(ph) * Math.cos(l), rho * Math.sin(ph), rho * Math.cos(ph) * Math.sin(l)); },
+      (u, v, o) => { const l = 2 * Math.PI * u, ph = (la0 + (la1 - la0) * v) * D; o.set(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l)).multiplyScalar(sign); });
+    const boxS = c.central ? -30 : -30, boxN = c.central ? 30 : 40;
+    const south = band(-90, boxS, 1, rc), box = band(boxS, boxN, 1, rc + 0.6), north = band(boxN, 90, 1, rc);
+    const ring = band(-1.6, 1.6, 1, rc + 2.4);
+    // decals
+    const dark = [], mid = [], sensor = [];
+    const quad = (lat, lon, w, h, lift, list) => {
+      const ph = lat * D, l = lon * D;
+      const n = new THREE.Vector3(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l));
+      const e = new THREE.Vector3(-Math.sin(l), 0, Math.cos(l)), t = new THREE.Vector3(-Math.sin(ph) * Math.cos(l), Math.cos(ph), -Math.sin(ph) * Math.sin(l));
+      const base = n.clone().multiplyScalar(rc + lift);
+      list.push(grid(1, 1, (u, v, o) => o.copy(base).addScaledVector(e, (u - 0.5) * w).addScaledVector(t, (v - 0.5) * h), (u, v, o) => o.copy(n)));
+    };
+    const disc = (lat, lon, dia, lift, list) => {
+      const ph = lat * D, l = lon * D;
+      const n = new THREE.Vector3(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l));
+      const e = new THREE.Vector3(-Math.sin(l), 0, Math.cos(l)), t = new THREE.Vector3(-Math.sin(ph) * Math.cos(l), Math.cos(ph), -Math.sin(ph) * Math.sin(l));
+      const base = n.clone().multiplyScalar(rc + lift);
+      list.push(grid(16, 1, (u, v, o) => { const a = 2 * Math.PI * u, rr2 = v * dia / 2; o.copy(base).addScaledVector(e, Math.cos(a) * rr2).addScaledVector(t, Math.sin(a) * rr2); }, (u, v, o) => o.copy(n)));
+    };
+    const meridianStrip = (lat0, lat1, lon, w, lift, list) => {
+      const l = lon * D, e = new THREE.Vector3(-Math.sin(l), 0, Math.cos(l));
+      list.push(grid(1, 12, (u, v, o) => { const ph = (lat0 + (lat1 - lat0) * v) * D; o.set(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l)).multiplyScalar(rc + lift).addScaledVector(e, (u - 0.5) * w); },
+        (u, v, o) => { const ph = (lat0 + (lat1 - lat0) * v) * D; o.set(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l)); }));
+    };
+    if (c.central) {
+      for (let k = 0; k < 8; k++) { quad(7.6, 45 * k, 60, 20, 3, dark); quad(18.8, 45 * k, 60, 20, 3, dark); }   // hangar mouths on the spur longitudes
+      for (let k = 0; k < 48; k++) { const lon = 3.75 + 7.5 * k; disc(8, lon, 18, 2, dark); disc(-8, lon, 18, 2, dark); }
+      for (let k = 0; k < 12; k++) disc(72, 30 * k, 45, 2, dark);                                                // drive cluster, twelve nozzles
+      for (let k = 0; k < 12; k++) quad(-40, 30 * k, 45, 30, 2, mid);                                            // landing gear bays
+      for (let k = 0; k < 6; k++) quad(-40, 15 + 60 * k, 50, 18, 2, dark);                                       // ventral ramps
+      for (let k = 0; k < 8; k++) quad(-20, 22.5 + 45 * k, 16, 8, 2, sensor);
+      for (let k = 0; k < 8; k++) meridianStrip(2, 62, 45 * k, 50, 1.5, mid);                                    // key channels
+    } else {
+      for (const lat of [15, 35]) { quad(lat, 90, 60, 20, 3, dark); quad(lat, 270, 60, 20, 3, dark); }        // through-corridor mouths, tangential
+      for (let k = 0; k < 32; k++) { const lon = 5.625 + 11.25 * k; disc(8, lon, 12, 2, dark); disc(-8, lon, 12, 2, dark); }
+      for (let k = 0; k < 8; k++) disc(72, 45 * k, 30, 2, dark);
+      for (let k = 0; k < 8; k++) quad(-40, 45 * k, 30, 20, 2, mid);
+      for (let k = 0; k < 4; k++) quad(-40, 22.5 + 90 * k, 40, 15, 2, dark);
+      for (let k = 0; k < 8; k++) quad(-20, 22.5 + 45 * k, 12, 6, 2, sensor);
+      for (let k = 0; k < 8; k++) meridianStrip(2, 62, 22.5 + 45 * k, 30, 1.5, mid);                          // clocked to the web longitudes
+    }
+    // shield ring emitters, four at 90° on the box
+    const rings = [];
+    for (let k = 0; k < 4; k++) { const lat = -12, lon = 45 + 90 * k, ph = lat * D, l = lon * D, dia = c.central ? 60 : 40;
+      const n = new THREE.Vector3(Math.cos(ph) * Math.cos(l), Math.sin(ph), Math.cos(ph) * Math.sin(l));
+      const e = new THREE.Vector3(-Math.sin(l), 0, Math.cos(l)), t = new THREE.Vector3(-Math.sin(ph) * Math.cos(l), Math.cos(ph), -Math.sin(ph) * Math.sin(l));
+      const base = n.clone().multiplyScalar(rc + 2.5);
+      rings.push(grid(32, 1, (u, v, o) => { const a = 2 * Math.PI * u, rr2 = dia / 2 * (0.72 + 0.28 * v); o.copy(base).addScaledVector(e, Math.cos(a) * rr2).addScaledVector(t, Math.sin(a) * rr2); }, (u, v, o) => o.copy(n)));
+    }
+    return { south, box, north, ring, dark: merge(dark), mid: merge(mid), sensor: merge(sensor), rings: merge(rings) };
+  }
+
+  return { D, RRIM, RCAP, CAPK, NTH, CORES, LAYERS, ZB, capZ, capSlope, domeZ, crownZ, crownSlope, knR, knZ, knZatR, knPhiFromZ, bottomZ, cavR, Rout, RoutSlope, inAftArc, normTh, P, radial, tangential,
+    bowlRadiusAt, deckRows, grid, merge, annulus, buildLayers, emitterPanels, collar, shutterSurface, shutterSeams, screenFlat, screenDish, coreGeometry, AFT_ZLO, AFT_ZHI };
+})();
+if (typeof module !== 'undefined') module.exports = LEV;
+</script>
+
+<script id="interior">
+LEV.INTERIOR = (() => {
+  const L = LEV, D = L.D, RRIM = L.RRIM;
+  // categories: [name, hex]; indices are shared by the section shader palette, the 3D volumes and the legend
+  const CAT = [
+    ['hull structure', '#c4b89c'], ['plating grade, 10 m dorsal / 4 m elsewhere', '#8a8479'], ['berthing', '#cdc2ad'], ['air group handling', '#b8b39f'],
+    ['growing decks', '#9bb082'], ['recycling and stores', '#a5ad9c'], ['fabrication and magazines', '#c9a47e'], ['ordnance cells', '#c9957f'],
+    ['reactor and auxiliary halls', '#b8a48e'], ['hypermatter containment', '#a8604f'], ['main trunks', '#7e8894'], ['shield generator halls', '#8fa3b3'],
+    ['boom stowage', '#9c8f7a'], ['cavity-screen generators', '#86a9b8'], ['collar body', '#b7ad9a'], ['core, decks on its equator', '#a7b2bc'], ['galleries, spurs, lifts, mouths', '#d9a63a'],
+  ];
+  const F = { VOID: 1, EXCL_AFT: 2, SOFT: 4, APERTURE: 8, MATES: 16 };
+  const VC = 16;
+  const mk = (type, name, cat, thc, copies, step, A, z0, z1, o) => Object.assign({ type, name, cat, thc, copies, step, A, z0, z1, flags: 0, param: 0 }, o || {});
+  // box: u = along the spine at longitude thc (radial), v = tangential (increasing θ), z vertical
+  const box = (name, cat, thc, copies, step, u0, u1, v0, v1, z0, z1, o) => mk(0, name, cat, thc, copies, step, [u0, u1, v0, v1], z0, z1, o);
+  const wedge = (name, cat, thc, copies, step, r0, r1, t0, t1, z0, z1, o) => mk(1, name, cat, thc, copies, step, [r0, r1, t0, t1], z0, z1, o);
+  const sphere = (name, cat, thc, copies, step, rc, zc, rho, o) => mk(2, name, cat, thc, copies, step, [rc, 0, rho, 0], zc - rho, zc + rho, o);
+  const boxR = (name, cat, thc, copies, step, u0, margin, v0, v1, z0, z1, o) => mk(3, name, cat, thc, copies, step, [u0, 3000, v0, v1], z0, z1, Object.assign({ param: margin }, o || {}));
+
+  // hull-fixed voids, identical in both revisions (B.7, B.9)
+  const fixed = () => [
+    wedge('Lower gallery', VC, 0, 1, 45, 760, 840, -180, 180, -248, -224, { flags: F.VOID | F.MATES }),
+    wedge('Upper gallery', VC, 0, 1, 45, 760, 840, -180, 180, -182, -158, { flags: F.VOID | F.MATES }),
+    box('Lower spur', VC, 0, 8, 45, 340, 1118, -30, 30, -248, -224, { flags: F.VOID | F.MATES }),
+    box('Upper spur', VC, 0, 8, 45, 340, 1118, -30, 30, -182, -158, { flags: F.VOID | F.MATES }),
+    box('Launch mouth', VC, 6.15, 8, 45, 1100, 1130, -60, 60, -575, -515, { flags: F.VOID | F.APERTURE }),
+    box('Launch mouth', VC, -6.15, 8, 45, 1100, 1130, -60, 60, -575, -515, { flags: F.VOID | F.APERTURE }),
+    box('Combat bridge', VC, 0, 1, 45, 380, 560, -60, 60, -296, -272, { flags: F.VOID }),
+  ];
+  const bands = stores => [
+    stores,
+    wedge('Fabrication and magazines', 6, 0, 1, 45, 0, 600, -180, 180, -356, -242, { flags: F.SOFT }),
+    wedge('Air group handling', 3, 0, 1, 45, 0, RRIM, -180, 180, -164, -122, { flags: F.SOFT }),
+    wedge('Berthing', 2, 0, 1, 45, 0, RRIM, -180, 180, -116, 40, { flags: F.SOFT }),
+  ];
+
+  const revF = {
+    label: 'Rev F as written, for comparison',
+    blocks: [
+      ...fixed(),
+      wedge('Flag plot', VC, 0, 1, 45, 190, 250, -180, 180, 16, 40, { flags: F.VOID }),
+      box('Mouth lift trunk', VC, 6.15, 8, 45, 1094, 1118, -20, 20, -515, -236, { flags: F.VOID, assumed: 'radius not given; taken square off the mouth head' }),
+      box('Mouth lift trunk', VC, -6.15, 8, 45, 1094, 1118, -20, 20, -515, -236, { flags: F.VOID, assumed: 'radius not given; taken square off the mouth head' }),
+      sphere('Reactor containment, inner pair', 9, 157.5, 2, 45, 1740, -315, 90, { parent: 'Reactor hall, inner pair' }),
+      box('Reactor hall, inner pair', 8, 157.5, 2, 45, 1590, 1890, -150, 150, -565, -65, { assumed: 'height not given; centred on z −315' }),
+      sphere('Reactor containment, outer pair', 9, 135, 2, 90, 1500, -315, 90, { parent: 'Reactor hall, outer pair' }),
+      box('Reactor hall, outer pair', 8, 135, 2, 90, 1350, 1650, -150, 150, -565, -65, { assumed: 'height not given; centred on z −315' }),
+      sphere('Auxiliary containment', 9, 0, 8, 45, 1400, -300, 40, { parent: 'Auxiliary block' }),
+      box('Auxiliary block', 8, 0, 8, 45, 1300, 1500, -100, 100, -450, -150),
+      wedge('Ordnance cells', 7, 180, 1, 45, 1050, 1400, -34, 34, -476, -296),
+      box('Growing decks', 4, 0, 8, 45, 1350, 1550, -161, 161, -386, -344, { assumed: 'position not given; centred on the spine' }),
+      box('Rim shield generator', 11, 0, 8, 45, 1474, 1674, -100, 100, -415, -215, { assumed: 'height not given; centred on the z −315 emitter' }),
+      box('Ventral shield generator', 11, 0, 8, 45, 1460, 1660, -100, 100, -626, -426, { assumed: 'emitter radius not given; taken at r 1,560' }),
+      box('Dorsal shield generator', 11, 0, 8, 45, 1019, 1219, -100, 100, -74, 8, { assumed: 'height not given; under the r 1,119 emitter' }),
+      box('Main trunk', 10, 0, 8, 45, 1170, 1230, -30, 30, -626, -14, { assumed: 'radius not given; taken at r 1,200' }),
+      box('Screen generator hall', 13, 22.5, 8, 45, 1190, 1310, -60, 60, -375, -255, { assumed: 'size not given; 120 m cube at mid-depth' }),
+      ...bands(wedge('Recycling and stores', 5, 0, 1, 45, 1150, RRIM, -180, 180, -506, -392, { flags: F.SOFT })),
+    ],
+    roots: [{ name: 'Upper boom root', r: 1065, z: -480, h: 40 }, { name: 'Lower boom root', r: 1125, z: -620, h: 40 }],
+    notes: [
+      'Reactor hall height is not given; halls are assumed centred on z −315.',
+      'Main trunk radius is not given; assumed r 1,200.',
+      'Growing-deck block position is not given; assumed centred on the spine.',
+      'Ventral shield ring radius is not given; assumed r 1,560.',
+      'Screen generator hall size is not given; assumed a 120 m cube at mid-depth.',
+      'Stowed boom volume, sixteen at 400 × 40 × 40 m, is not allocated anywhere.',
+    ],
+  };
+  const revG = {
+    label: 'Rev H as specified',
+    blocks: [
+      ...fixed(),
+      wedge('Flag plot', VC, 0, 1, 45, 210, 250, -180, 180, 16, 40, { flags: F.VOID }),
+      box('Mouth lift trunk', VC, 6.15, 8, 45, 1106, 1130, -20, 20, -515, -236, { flags: F.VOID }),
+      box('Mouth lift trunk', VC, -6.15, 8, 45, 1106, 1130, -20, 20, -515, -236, { flags: F.VOID }),
+      sphere('Reactor containment', 9, 150, 2, 60, 1570, -317, 90, { parent: 'Reactor hall' }),
+      sphere('Reactor containment', 9, 165, 2, 30, 1640, -317, 90, { parent: 'Reactor hall' }),
+      boxR('Reactor hall', 8, 150, 2, 60, 1420, 40, -150, 150, -566, -68),
+      boxR('Reactor hall', 8, 165, 2, 30, 1490, 40, -150, 150, -566, -68),
+      sphere('Auxiliary containment', 9, 0, 8, 45, 1400, -300, 40, { parent: 'Auxiliary block' }),
+      box('Auxiliary block', 8, 0, 8, 45, 1300, 1500, -100, 100, -450, -150),
+      wedge('Ordnance cells', 7, 180, 1, 45, 1050, 1400, -34, -7.5, -476, -296),
+      wedge('Ordnance cells', 7, 180, 1, 45, 1050, 1400, 7.5, 34, -476, -296),
+      box('Growing decks', 4, 0, 3, 45, 1350, 1550, 100, 284, -386, -344),
+      box('Growing decks', 4, 0, 3, 45, 1350, 1550, -284, -100, -386, -344),
+      box('Growing decks', 4, 270, 2, 45, 1350, 1550, 100, 284, -386, -344),
+      box('Growing decks', 4, 270, 2, 45, 1350, 1550, -284, -100, -386, -344),
+      box('Growing decks, bow side', 4, 135, 1, 45, 1350, 1550, -284, -100, -386, -344),
+      box('Growing decks, bow side', 4, 135, 1, 45, 1350, 1550, -484, -300, -386, -344),
+      box('Growing decks, bow side', 4, 225, 1, 45, 1350, 1550, 100, 284, -386, -344),
+      box('Growing decks, bow side', 4, 225, 1, 45, 1350, 1550, 300, 484, -386, -344),
+      box('Rim shield generator', 11, 0, 8, 45, 1500, 1674, -100, 100, -288, -148),
+      box('Ventral shield generator', 11, 0, 8, 45, 1500, 1630, -100, 100, -483, -343),
+      box('Dorsal shield generator', 11, 0, 8, 45, 1019, 1219, -100, 100, -150, -30),
+      box('Main trunk', 10, 0, 8, 45, 1230, 1290, -30, 30, -626, -14),
+      box('Upper boom, stowed', 12, 0, 8, 45, 1130, 1170, -400, 0, -540, -500),
+      box('Lower boom, stowed', 12, 0, 8, 45, 1130, 1170, 0, 400, -618, -578),
+      box('Screen generator hall', 13, 22.5, 8, 45, 1190, 1310, -60, 60, -290, -170),
+      wedge('Heavy rim battery', 7, 0, 1, 45, 1634, 1674, -135, 135, -142, -98),
+      wedge('Heavy rim battery', 7, 0, 1, 45, 1634, 1674, -135, 135, -337, -293),
+      wedge('Heavy rim battery', 7, 0, 1, 45, 1634, 1674, -135, 135, -532, -488),
+      wedge('Heavy battery feed and magazine', 7, 0, 1, 45, 1510, 1634, -135, 135, -142, -98),
+      wedge('Heavy battery feed and magazine', 7, 0, 1, 45, 1510, 1634, -135, 135, -337, -293),
+      wedge('Heavy battery feed and magazine', 7, 0, 1, 45, 1510, 1634, -135, 135, -532, -488),
+      wedge('Medium battery, dorsal one-third', 7, 0, 1, 45, 548, 571, -180, 180, -7, 39),
+      wedge('Medium battery, dorsal two-thirds', 7, 0, 1, 45, 1108, 1130, -180, 180, -25, 21),
+      wedge('Medium battery, ventral one-third', 7, 0, 1, 45, 548, 571, -180, 180, -434, -385),
+      wedge('Medium battery, ventral outer', 7, 0, 1, 45, 1320, 1342, -180, 180, -626, -581),
+      ...bands(wedge('Recycling and stores', 5, 0, 1, 45, 1150, 1500, -135, 135, -506, -392, { flags: F.SOFT })),
+    ],
+    roots: [{ name: 'Upper boom root', r: 1108, z: -520, h: 40 }, { name: 'Lower boom root', r: 1128, z: -596, h: 40 }],
+    notes: [
+      'Endurance plant confined to the forward 270°; the aft 90° is propulsion and ordnance as Section 14 states.',
+      'The aft sector carries no growing decks. Seven sectors carry 73,600 m² each in two blocks; the two flanking the aft block carry both of theirs on the bow side.',
+      'Ordnance cells leave a ±7.5° corridor on the 180° spine for the auxiliary, the trunk and the mouth lift trunks.',
+      'Booms stow tangentially below the ordnance cells: upper one toward the bow, lower one toward the stern.',
+      'Mouth lift trunks stand at r 1,106 to 1,130, cut to the knuckle rather than square off the mouth head.',
+      'Flag plot stands off at r 210, clear of Praetorian\u2019s bowl shell at its lowest level.',
+      'All four reactor halls stand off the web longitudes at 150°, 165°, 195° and 210°, inside the fairing.',
+      'Weapon installations carried as volumes: mounts, barbettes, feed and magazines. Generator halls sit in the gaps between battery rows.',
+      'Stores stop at r 1,500; the outer 178 m of the hull is a weapons band.',
+    ],
+  };
+  const REVS = { F: revF, G: revG };
+
+  function expand(blocks) { const out = []; blocks.forEach((b, bi) => { for (let k = 0; k < b.copies; k++) { const thc = b.thc + b.step * k; out.push({ b, bi, thc, thcN: Math.round(L.normTh(thc) * 100) / 100 }); } }); return out; }
+  const frame = (thc, x, zp) => { const c = Math.cos(thc * D), s = Math.sin(thc * D); return [x * s - zp * c, x * c + zp * s]; };
+  const toWorld = (thc, u, v) => { const c = Math.cos(thc * D), s = Math.sin(thc * D); return [u * s + v * c, -u * c + v * s]; };
+  const thetaOf = (x, zp) => L.normTh(Math.atan2(x, -zp) / D);
+  const isHard = I => !(I.b.flags & F.SOFT) && !(I.b.flags & F.VOID), isVoid = I => !!(I.b.flags & F.VOID), isSoft = I => !!(I.b.flags & F.SOFT);
+  function inside(I, x, zp, h, eps) {
+    eps = eps || 0; const b = I.b, A = b.A; if (h < b.z0 + eps || h > b.z1 - eps) return false;
+    if (b.flags & F.EXCL_AFT) { const r0 = Math.hypot(x, zp); if (r0 >= 1000 && L.inAftArc(thetaOf(x, zp))) return false; }
+    if (b.type === 1) { const r = Math.hypot(x, zp); if (r < A[0] + eps || r > A[1] - eps) return false; let dt = ((thetaOf(x, zp) - I.thc + 180) % 360 + 360) % 360 - 180; const ea = eps / Math.max(r, 1) / D; return dt >= A[2] + ea && dt <= A[3] - ea; }
+    const [u, v] = frame(I.thc, x, zp);
+    if (b.type === 0) return u >= A[0] + eps && u <= A[1] - eps && v >= A[2] + eps && v <= A[3] - eps;
+    if (b.type === 3) { if (!(u >= A[0] + eps && v >= A[2] + eps && v <= A[3] - eps)) return false; return Math.hypot(x, zp) <= L.Rout(thetaOf(x, zp)) - b.param - eps; }
+    if (b.type === 2) { const du = u - A[0], dh = h - (b.z0 + b.z1) / 2, rr = A[2] - eps; return du * du + v * v + dh * dh < rr * rr; }
+    return false;
+  }
+  function samples(I, target) {
+    const b = I.b, A = b.A, pts = []; let vol, sp;
+    const sz = (b.z1 - b.z0);
+    if (b.type === 1) {
+      const arc = (A[3] - A[2]) * D * (A[0] + A[1]) / 2; vol = (A[1] - A[0]) * arc * sz; sp = Math.max(4, Math.min(40, Math.cbrt(vol / target)));
+      const nr = Math.max(1, Math.round((A[1] - A[0]) / sp)), nt = Math.max(1, Math.round(arc / sp)), nz = Math.max(1, Math.round(sz / sp));
+      for (let i = 0; i < nr; i++) for (let j = 0; j < nt; j++) for (let k = 0; k < nz; k++) { const r = A[0] + (A[1] - A[0]) * (i + 0.5) / nr, t = (I.thc + A[2] + (A[3] - A[2]) * (j + 0.5) / nt) * D; pts.push([r * Math.sin(t), -r * Math.cos(t), b.z0 + sz * (k + 0.5) / nz]); }
+      return { pts, cell: vol / Math.max(1, pts.length) };
+    }
+    if (b.type === 2) {
+      const rho = A[2]; vol = 4 / 3 * Math.PI * rho ** 3; sp = Math.max(4, Math.min(40, Math.cbrt(vol / target))); const n = Math.max(3, Math.round(2 * rho / sp)), zc = (b.z0 + b.z1) / 2;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) for (let k = 0; k < n; k++) { const du = -rho + 2 * rho * (i + 0.5) / n, dv = -rho + 2 * rho * (j + 0.5) / n, dh = -rho + 2 * rho * (k + 0.5) / n; if (du * du + dv * dv + dh * dh > rho * rho) continue; const [x, zp] = toWorld(I.thc, A[0] + du, dv); pts.push([x, zp, zc + dh]); }
+      return { pts, cell: (2 * rho / n) ** 3 };
+    }
+    const u1 = b.type === 3 ? RRIM + 200 : A[1];
+    vol = (u1 - A[0]) * (A[3] - A[2]) * sz; sp = Math.max(4, Math.min(40, Math.cbrt(vol / target)));
+    const nu = Math.max(1, Math.round((u1 - A[0]) / sp)), nv = Math.max(1, Math.round((A[3] - A[2]) / sp)), nz = Math.max(1, Math.round(sz / sp));
+    for (let i = 0; i < nu; i++) for (let j = 0; j < nv; j++) for (let k = 0; k < nz; k++) {
+      const u = A[0] + (u1 - A[0]) * (i + 0.5) / nu, v = A[2] + (A[3] - A[2]) * (j + 0.5) / nv, h = b.z0 + sz * (k + 0.5) / nz; const [x, zp] = toWorld(I.thc, u, v);
+      if (b.type === 3 && Math.hypot(x, zp) > L.Rout(thetaOf(x, zp)) - b.param) continue;
+      if ((b.flags & F.EXCL_AFT) && Math.hypot(x, zp) >= 1000 && L.inAftArc(thetaOf(x, zp))) continue;
+      pts.push([x, zp, h]);
+    }
+    return { pts, cell: (u1 - A[0]) / nu * (A[3] - A[2]) / nv * sz / nz };
+  }
+  // hull envelope with plating grades and core keep-outs (bowl shell + clearance = rc + 14)
+  function envelope(x, zp, h) {
+    const r = Math.hypot(x, zp), t = thetaOf(x, zp), R = L.Rout(t) - 4; if (r > R) return { kind: 'rim', depth: r - R };
+    const top = r < 250 ? L.domeZ(r) - 10 : (r <= 450 ? -10 : L.capZ(r) - 10); if (h > top) return { kind: 'dorsal', depth: h - top };
+    const bot = L.bottomZ(r) + 4; if (h < bot) return { kind: 'ventral', depth: bot - h };
+    for (const c of L.CORES) { const keep = c.rc + 14; if (h > c.zc) { const d = Math.hypot(x - c.x, h - c.zc, zp - c.zp); if (d < keep) return { kind: 'bowl', depth: keep - d }; } else { const dp = Math.hypot(x - c.x, zp - c.zp); if (dp < keep) return { kind: 'well', depth: keep - dp }; } }
+    return null;
+  }
+  function check(key) {
+    const rev = REVS[key], inst = expand(rev.blocks);
+    for (const I of inst) { const b = I.b, A = b.A; let rmin, rmax; if (b.type === 1) { rmin = A[0]; rmax = A[1]; } else if (b.type === 2) { rmin = A[0] - A[2]; rmax = A[0] + A[2]; } else { const u1 = b.type === 3 ? RRIM + 200 : A[1]; const vmin = (A[2] <= 0 && A[3] >= 0) ? 0 : Math.min(Math.abs(A[2]), Math.abs(A[3])); rmin = Math.hypot(Math.max(0, A[0]), vmin); rmax = Math.hypot(u1, Math.max(Math.abs(A[2]), Math.abs(A[3]))); } I.rr = [rmin, rmax]; }
+    const S = inst.map(I => samples(I, isHard(I) ? 2500 : 1200));
+    const pairs = new Map(), viol = new Map(); let points = 0;
+    for (let i = 0; i < inst.length; i++) {
+      const I = inst[i]; const pts = S[i].pts;
+      // hull envelope: every hard volume, and every void except the apertures that are meant to cut the surface
+      if (isHard(I) || (isVoid(I) && !(I.b.flags & F.APERTURE))) {
+        points += pts.length;
+        for (const p of pts) { const e = envelope(p[0], p[1], p[2]); if (e && (I.b.flags & F.MATES) && (e.kind === 'bowl' || e.kind === 'well')) continue; if (e) { const k = I.b.name + '|' + e.kind; const v = viol.get(k) || { name: I.b.name, kind: e.kind, depth: 0, thetas: new Set() }; if (e.depth > v.depth) v.depth = e.depth; v.thetas.add(I.thcN); viol.set(k, v); } }
+      }
+      if (!isHard(I)) continue;
+      for (let j = 0; j < inst.length; j++) {
+        if (i === j) continue; const J = inst[j];
+        if (I.b.parent === J.b.name || J.b.parent === I.b.name) continue;
+        if (I.rr[1] < J.rr[0] || J.rr[1] < I.rr[0] || I.b.z1 <= J.b.z0 || J.b.z1 <= I.b.z0) continue;
+        let n = 0; for (const p of pts) if (inside(J, p[0], p[1], p[2], 0.5)) n++;
+        if (n) pairs.set(i + '|' + j, n * S[i].cell);
+      }
+    }
+    const clashes = new Map(), disps = new Map(), seen = new Set();
+    for (const [k, vol] of pairs) {
+      const [i, j] = k.split('|').map(Number); const I = inst[i], J = inst[j]; const pk = Math.min(i, j) + '|' + Math.max(i, j); if (seen.has(pk)) continue; seen.add(pk);
+      const v = Math.max(vol, pairs.get(j + '|' + i) || 0); const target = isSoft(J) ? disps : clashes; const nk = I.b.name + '|' + J.b.name;
+      const e = target.get(nk) || { a: I.b.name, b: J.b.name, volume: 0, ta: new Set(), tb: new Set(), ca: I.b.copies, cb: J.b.copies }; e.volume += v; e.ta.add(I.thcN); e.tb.add(J.thcN); target.set(nk, e);
+    }
+    const roots = rev.roots.map(rt => { let best = 1e9, bp = [0, 0]; for (let k = 0; k <= 400; k++) { const phi = Math.PI / 2 * k / 400, rr = L.knR(phi), zz = L.knZ(phi); const d = Math.hypot(rr - rt.r, zz - rt.z); if (d < best) { best = d; bp = [rr, zz]; } } const issues = []; if (best > 2) issues.push(`${best.toFixed(0)} m off the knuckle curve; nearest point on it is r ${bp[0].toFixed(0)}, z ${bp[1].toFixed(0)}`); const bottom = rt.z - rt.h / 2; if (bottom < -626) issues.push(`its ${rt.h} m recess reaches z ${bottom}, ${(-626 - bottom).toFixed(0)} m below the ventral grade`); return { name: rt.name, at: `r ${rt.r}, z ${rt.z}`, issues }; });
+    const fix = s => [...s].sort((a, b) => a - b);
+    const pick = c => ({ a: c.a, b: c.b, volume: c.volume, thetas: fix((c.ca > 1 || c.cb === 1) ? c.ta : c.tb) });
+    return { key, label: rev.label, clashes: [...clashes.values()].map(pick), displacements: [...disps.values()].map(pick), violations: [...viol.values()].map(v => ({ ...v, thetas: fix(v.thetas) })), roots, notes: rev.notes, instances: inst.length, points };
+  }
+  function describe(b) {
+    const A = b.A, where = b.copies > 1 ? `on ${b.copies} longitudes from ${b.thc}° every ${b.step}°` : `at ${b.thc}°`; let s;
+    if (b.type === 2) s = `${b.name}: sphere, radius ${A[2]} m, centre r ${A[0]}, z ${(b.z0 + b.z1) / 2}, ${where}`;
+    else if (b.type === 1) s = `${b.name}: r ${A[0]}–${A[1]}, θ ${b.thc + A[2]}° to ${b.thc + A[3]}°, z ${b.z0} to ${b.z1}`;
+    else { const vr = A[2] === -A[3] ? `±${A[3]} m` : `${A[2]} to ${A[3]} m`; const ur = b.type === 3 ? `r ${A[0]} out to the fairing curve less ${b.param} m` : `r ${A[0]}–${A[1]}`; s = `${b.name}: ${ur}, tangential ${vr}, z ${b.z0} to ${b.z1}, ${where}`; }
+    if (b.assumed) s += ` (assumed: ${b.assumed})`; return s;
+  }
+  // 3D volume geometry for one instance, in ship coordinates
+  function instanceGeometry(I) {
+    const b = I.b, A = b.A, c = Math.cos(I.thc * D), s = Math.sin(I.thc * D);
+    const W = (u, v, h, o) => o.set(u * s + v * c, h, -u * c + v * s), N = (u, v, o) => o.set(0, 1, 0), g = L.grid, parts = [];
+    if (b.type === 2) { const sg = new THREE.SphereGeometry(A[2], 24, 16); const ctr = new THREE.Vector3(); W(A[0], 0, (b.z0 + b.z1) / 2, ctr); sg.translate(ctr.x, ctr.y, ctr.z); return sg; }
+    if (b.type === 1) {
+      const r0 = A[0], r1 = A[1], t0 = A[2], t1 = A[3], full = (t1 - t0) >= 359.9, n = Math.max(4, Math.round((t1 - t0) / 360 * 256)), Pp = (r, dt, h, o) => L.P(r, I.thc + dt, h, o);
+      parts.push(g(n, 1, (u, v, o) => Pp(r0, t0 + (t1 - t0) * u, b.z0 + (b.z1 - b.z0) * v, o), N));
+      parts.push(g(n, 1, (u, v, o) => Pp(r1, t0 + (t1 - t0) * u, b.z0 + (b.z1 - b.z0) * v, o), N));
+      parts.push(g(n, 1, (u, v, o) => Pp(r0 + (r1 - r0) * v, t0 + (t1 - t0) * u, b.z0, o), N));
+      parts.push(g(n, 1, (u, v, o) => Pp(r0 + (r1 - r0) * v, t0 + (t1 - t0) * u, b.z1, o), N));
+      if (!full) { parts.push(g(1, 1, (u, v, o) => Pp(r0 + (r1 - r0) * u, t0, b.z0 + (b.z1 - b.z0) * v, o), N)); parts.push(g(1, 1, (u, v, o) => Pp(r0 + (r1 - r0) * u, t1, b.z0 + (b.z1 - b.z0) * v, o), N)); }
+      return L.merge(parts);
+    }
+    const u0 = A[0], v0 = A[2], v1 = A[3], z0 = b.z0, z1 = b.z1;
+    const uOut = v => { if (b.type === 0) return A[1]; let u = RRIM; for (let k = 0; k < 5; k++) { const x = u * s + v * c, zp = -u * c + v * s; const rt = L.Rout(thetaOf(x, zp)) - b.param; u = Math.sqrt(Math.max(0, rt * rt - v * v)); } return u; };
+    const nv = b.type === 3 ? 10 : 1;
+    parts.push(g(1, 1, (u, v, o) => W(u0, v0 + (v1 - v0) * u, z0 + (z1 - z0) * v, o), N));
+    parts.push(g(nv, 1, (u, v, o) => { const vv = v0 + (v1 - v0) * u; W(uOut(vv), vv, z0 + (z1 - z0) * v, o); }, N));
+    parts.push(g(nv, 1, (u, v, o) => { const vv = v0 + (v1 - v0) * u; W(u0 + (uOut(vv) - u0) * v, vv, z0, o); }, N));
+    parts.push(g(nv, 1, (u, v, o) => { const vv = v0 + (v1 - v0) * u; W(u0 + (uOut(vv) - u0) * v, vv, z1, o); }, N));
+    parts.push(g(1, 1, (u, v, o) => W(u0 + (uOut(v0) - u0) * u, v0, z0 + (z1 - z0) * v, o), N));
+    parts.push(g(1, 1, (u, v, o) => W(u0 + (uOut(v1) - u0) * u, v1, z0 + (z1 - z0) * v, o), N));
+    return L.merge(parts);
+  }
+  return { CAT, F, REVS, expand, inside, check, describe, instanceGeometry, isHard, isVoid, isSoft };
+})();
+</script>
+
+<script id="app">
+(() => {
+  const L = LEV, D = L.D, RRIM = L.RRIM;
+  const $ = s => document.querySelector(s);
+  const canvas = $('#c');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.localClippingEnabled = true;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x12161c);
+  const camera = new THREE.PerspectiveCamera(42, 1, 8, 80000);
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.target.set(0, -280, 0);
+  controls.minDistance = 120; controls.maxDistance = 30000; controls.autoRotateSpeed = 0.5;
+
+  scene.add(new THREE.HemisphereLight(0xdde5f0, 0x2a2f36, 0.95));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.85); sun.position.set(4000, 9000, 5000); scene.add(sun);
+  const under = new THREE.DirectionalLight(0xb9c9dc, 0.8); under.position.set(-5000, -7000, 3000); scene.add(under);
+  const under2 = new THREE.DirectionalLight(0xb9c9dc, 0.45); under2.position.set(6000, -5000, -4000); scene.add(under2);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.25); fill.position.set(-6000, 2000, -7000); scene.add(fill);
+
+  // ---------- clipping plane and shared uniforms ----------
+  const clipPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 1e7);
+  const G = { uGrid: { value: 0 }, uExplode: { value: 0 } };
+  const CUTHDR = `
+    varying vec3 vShip;
+    uniform vec4 uCut[9]; uniform float uGal; uniform float uAftSplit; uniform float uBite; uniform float uGrid; uniform float uGridMul;
+    uniform vec4 uSeat[9];
+    float lev_crownZ(float r){ float q = r/1050.0; return -420.0 - 50.0*q*q; }
+  `;
+  const CUTFRAG = `
+    {
+      vec2 pp = vShip.xz;
+      for (int i = 0; i < 9; i++) { vec4 c = uCut[i]; if (c.w > 0.0) { vec2 dd = pp - c.xy; if (dot(dd,dd) < c.w*c.w) discard; } }
+      float rr = length(pp);
+      float thd = degrees(atan(pp.x, -pp.y)); if (thd < 0.0) thd += 360.0;
+      if (uGal > 0.5) {
+        if (rr > 760.0 && rr < 840.0) discard;
+        float tw = mod(thd + 22.5, 45.0) - 22.5;
+        if (rr > 340.0 && rr < 1118.0 && abs(rr*sin(radians(tw))) < 30.0) discard;
+      }
+      if (uAftSplit != 0.0) { bool aft = (rr > 1000.0 && thd >= 135.0 && thd <= 225.0); if ((uAftSplit > 0.0) == aft) discard; }
+      if (uBite > 0.5) {
+        for (int i = 0; i < 9; i++) { vec4 s = uSeat[i]; if (s.w <= 0.0) continue;
+          vec2 dd = pp - s.xz; float rw = s.w + 6.0;
+          if (dot(dd,dd) < rw*rw && vShip.y >= lev_crownZ(rr) - 0.5 && vShip.y <= s.y) discard;
+          vec3 d3 = vShip - s.xyz; float rb = s.w + 2.0;
+          if (vShip.y > s.y && dot(d3,d3) < rb*rb) discard; }
+      }
+    }
+  `;
+  const GRIDFRAG = `
+    if (uGrid > 0.5 && uGridMul > 0.5) {
+      float w = max(fwidth(vShip.y), 1e-4);
+      float fade = smoothstep(2.2, 0.6, w);
+      float d = abs(fract((vShip.y + 236.0)/6.0 + 0.5) - 0.5) * 6.0;
+      float ln = (1.0 - smoothstep(0.25 + 0.6*w, 0.25 + 1.6*w, d)) * fade;
+      float g = min(abs(vShip.y + 236.0), abs(vShip.y + 170.0));
+      float gl = 1.0 - smoothstep(0.5 + 0.8*w, 0.5 + 2.0*w, g);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.06,0.07,0.09), ln*0.8);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.95,0.68,0.2), gl);
+    }
+  `;
+  const seatUniform = { value: L.CORES.map(c => new THREE.Vector4(c.x, c.zc, c.zp, c.rc)) };
+  const emptyCut = () => Array.from({ length: 9 }, () => new THREE.Vector4(0, 0, 0, 0));
+  function hullMat(o) {
+    const m = new THREE.MeshStandardMaterial({ color: o.color, roughness: o.roughness ?? 0.72, metalness: o.metalness ?? 0.32, side: o.side ?? THREE.FrontSide, clippingPlanes: [clipPlane], emissive: o.emissive ?? 0x000000, emissiveIntensity: o.emissiveIntensity ?? 1 });
+    const cut = emptyCut(); (o.cut || []).forEach((c, i) => { if (i < 9) cut[i].set(c.x, c.z, c.r, c.r); });
+    const U = { uCut: { value: cut }, uGal: { value: o.gal ? 1 : 0 }, uAftSplit: { value: o.aftSplit || 0 }, uBite: { value: o.bite ? 1 : 0 }, uGridMul: { value: o.gridMul ?? 1 }, uSeat: seatUniform, uGrid: G.uGrid };
+    m.onBeforeCompile = shader => {
+      Object.assign(shader.uniforms, U);
+      shader.vertexShader = 'varying vec3 vShip;\n' + shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvShip = position;');
+      shader.fragmentShader = CUTHDR + shader.fragmentShader
+        .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n' + CUTFRAG)
+        .replace('#include <color_fragment>', '#include <color_fragment>\n' + GRIDFRAG);
+    };
+    m.customProgramCacheKey = () => 'lev-hull';
+    return m;
+  }
+  const COL = { plating: 0x8f959c, dorsal: 0x777d85, ventral: 0x8a9096, interior: 0x7d858e, cut: 0xa39a85, cutDark: 0x8f877a, core: 0x9aa4ad, box: 0x6f7780, south: 0x5c5451 };
+  const wireMats = [], hullMeshes = [];
+  function mesh(geo, mat, parent, tag) { if (!geo) return null; const m = new THREE.Mesh(geo, mat); m.userData.tag = tag || ''; parent.add(m); hullMeshes.push(m); return m; }
+
+  // ---------- build the hull layers ----------
+  const shipRoot = new THREE.Group(); scene.add(shipRoot);
+  const layerData = L.buildLayers();
+  const layerGroups = {}; const capMeshes = [];
+  for (const Ld of L.LAYERS) {
+    const grp = new THREE.Group(); grp.name = Ld.id; shipRoot.add(grp); layerGroups[Ld.id] = grp;
+    const data = layerData[Ld.id];
+    const platingColor = Ld.id === 'dorsal' || Ld.id === 'cap' ? COL.dorsal : (Ld.id === 'ventral' ? COL.ventral : COL.plating);
+    const plain = [], cutted = [];
+    for (const item of data.plating) { if (item && item.geo) cutted.push(item); else if (item) plain.push(item); }
+    mesh(L.merge(plain), hullMat({ color: platingColor }), grp, 'plating');
+    for (const item of cutted) mesh(item.geo, hullMat({ color: item.color === 'dorsal' ? COL.dorsal : platingColor, cut: item.cut }), grp, 'plating');
+    mesh(L.merge(data.interior), hullMat({ color: COL.interior, roughness: 0.8 }), grp, 'interior');
+    for (const s of data.split) mesh(s.geo, hullMat({ color: COL.interior, roughness: 0.8, aftSplit: s.mode }), grp, 'interior');
+    const notchPlain = [], notchBite = [];
+    for (const n of data.notch) { if (n && n.geo) notchBite.push(n.geo); else if (n) notchPlain.push(n); }
+    const nm1 = mesh(L.merge(notchPlain), hullMat({ color: COL.cutDark, roughness: 0.9, metalness: 0.1, gridMul: 1 }), grp, 'cutface');
+    const nm2 = mesh(L.merge(notchBite), hullMat({ color: COL.cutDark, roughness: 0.9, metalness: 0.1, bite: true }), grp, 'cutface');
+    if (nm1) capMeshes.push(nm1); if (nm2) capMeshes.push(nm2);
+    for (const c of data.caps) { const cm = mesh(c.geo, hullMat({ color: COL.cut, roughness: 0.92, metalness: 0.08, cut: c.cut, gal: c.gal, gridMul: 0 }), grp, 'cutface'); if (cm) capMeshes.push(cm); }
+  }
+  capMeshes.forEach(m => m.visible = false);
+
+  // ---------- collar, shutters, cap-layer extras ----------
+  const capGrp = layerGroups.cap;
+  const collarGrp = new THREE.Group(); capGrp.add(collarGrp);
+  const collarGeo = L.collar();
+  mesh(collarGeo.plating, hullMat({ color: COL.dorsal }), collarGrp, 'collar');
+  mesh(collarGeo.glazing, hullMat({ color: 0x1a2a3a, roughness: 0.3, metalness: 0.6, emissive: 0x1f4f7a, emissiveIntensity: 0.55 }), collarGrp, 'collar');
+  const shutterMesh = mesh(L.shutterSurface(), hullMat({ color: COL.dorsal }), capGrp, 'shutters');
+  const seamLines = new THREE.LineSegments(L.shutterSeams(), new THREE.LineBasicMaterial({ color: 0x2a2f36, clippingPlanes: [clipPlane] })); capGrp.add(seamLines);
+
+  // ---------- aft block: drive emitter ----------
+  const em = L.emitterPanels();
+  const emitterGrp = new THREE.Group(); layerGroups.aft.add(emitterGrp);
+  mesh(em.face, hullMat({ color: 0x1b2733, roughness: 0.75, metalness: 0.25, emissive: 0x2f7fc4, emissiveIntensity: 0.3 }), emitterGrp, 'emitter');
+  mesh(em.side, hullMat({ color: 0x4a5058, roughness: 0.6 }), emitterGrp, 'emitter');
+
+  // ---------- cavity screen ----------
+  const screenMat = new THREE.MeshBasicMaterial({ color: 0x62b8ff, transparent: true, opacity: 0.08, side: THREE.DoubleSide, depthWrite: false, clippingPlanes: [clipPlane] });
+  const screenFlatMesh = new THREE.Mesh(L.screenFlat(-630), screenMat); shipRoot.add(screenFlatMesh);
+  const screenDishMesh = new THREE.Mesh(L.screenDish(), screenMat); screenDishMesh.visible = false; shipRoot.add(screenDishMesh);
+
+  // ---------- cores ----------
+  const coreGroups = [];
+  const lanceGeo = L.coreGeometry(L.CORES[1]), praeGeo = L.coreGeometry(L.CORES[0]);
+  const coreMats = {
+    south: hullMat({ color: COL.south, roughness: 0.9, metalness: 0.15 }),
+    box: hullMat({ color: COL.box, roughness: 0.7 }),
+    north: hullMat({ color: COL.core, roughness: 0.7 }),
+    ring: hullMat({ color: 0x555b63, roughness: 0.6 }),
+    dark: hullMat({ color: 0x0e1216, roughness: 0.95, metalness: 0.1, side: THREE.DoubleSide }),
+    mid: hullMat({ color: 0x4d545c, roughness: 0.8, side: THREE.DoubleSide }),
+    sensor: hullMat({ color: 0x1b2a33, roughness: 0.3, metalness: 0.4, emissive: 0x2bb0c8, emissiveIntensity: 0.7, side: THREE.DoubleSide }),
+    rings: hullMat({ color: 0x28323c, roughness: 0.4, emissive: 0x4a90d9, emissiveIntensity: 0.35, side: THREE.DoubleSide }),
+  };
+  L.CORES.forEach((c, i) => {
+    const g = c.central ? praeGeo : lanceGeo;
+    const grp = new THREE.Group(); grp.name = c.name;
+    grp.position.set(c.x, c.zc, c.zp);
+    grp.rotation.y = (90 - c.th) * D; // local +x becomes the radial direction at the station, local +z the tangential
+    for (const k of ['south', 'box', 'north', 'ring', 'dark', 'mid', 'sensor', 'rings']) mesh(g[k], coreMats[k], grp, 'core');
+    shipRoot.add(grp); coreGroups.push(grp);
+  });
+
+  // ---------- fittings (instanced) ----------
+  const fitGeo = {
+    disc: new THREE.CylinderGeometry(0.5, 0.5, 1, 20).rotateX(Math.PI / 2),
+    box: new THREE.BoxGeometry(1, 1, 1),
+    torus: new THREE.TorusGeometry(0.5, 0.06, 8, 40),
+  };
+  const fitMat = {
+    battery: new THREE.MeshStandardMaterial({ color: 0x5b6169, roughness: 0.6, metalness: 0.5, clippingPlanes: [clipPlane] }),
+    barrel: new THREE.MeshStandardMaterial({ color: 0x3f454c, roughness: 0.55, metalness: 0.6, clippingPlanes: [clipPlane] }),
+    pd: new THREE.MeshStandardMaterial({ color: 0x4b5159, roughness: 0.7, metalness: 0.4, clippingPlanes: [clipPlane] }),
+    sensor: new THREE.MeshStandardMaterial({ color: 0x1b2a33, roughness: 0.3, metalness: 0.4, emissive: 0x2bb0c8, emissiveIntensity: 0.8, clippingPlanes: [clipPlane] }),
+    shield: new THREE.MeshStandardMaterial({ color: 0x28323c, roughness: 0.4, metalness: 0.5, emissive: 0x4a90d9, emissiveIntensity: 0.5, clippingPlanes: [clipPlane] }),
+    screen: new THREE.MeshStandardMaterial({ color: 0x1e3446, roughness: 0.35, metalness: 0.4, emissive: 0x3a9fe0, emissiveIntensity: 0.6, clippingPlanes: [clipPlane] }),
+    mouth: new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: 0.95, metalness: 0.1, clippingPlanes: [clipPlane] }),
+    recess: new THREE.MeshStandardMaterial({ color: 0x3a4048, roughness: 0.85, metalness: 0.3, clippingPlanes: [clipPlane] }),
+  };
+  const buckets = {}; // key layer|kind -> array of {p, n, s:[sx,sy,sz], off}
+  const layerFor = (r, th, z) => {
+    if (L.inAftArc(th) && r >= 1000) return 'aft';
+    if (r <= 450 && z >= -10) return 'cap';
+    if (z >= -50) return 'dorsal';
+    for (let i = 0; i < 6; i++) if (z >= L.LAYERS[i].z[0] && z < L.LAYERS[i].z[1]) return L.LAYERS[i].id;
+    return 'ventral';
+  };
+  const V = () => new THREE.Vector3();
+  function fit(kind, geoKey, matKey, r, th, z, n, sx, sy, sz, proudFlush) {
+    const p = V(); L.P(r, th, z, p);
+    const key = layerFor(r, th, z) + '|' + kind;
+    (buckets[key] = buckets[key] || { kind, geoKey, matKey, items: [] }).items.push({ p, n: n.clone().normalize(), s: [sx, sy, sz], proud: proudFlush });
+  }
+  const nCap = r => { const o = V(); L.radial(0, o); return o; }; // placeholder, replaced per θ below
+  const capNormal = (r, th) => { const o = V(), rr = V(); L.radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -L.capSlope(r)); return o.normalize(); };
+  const crownNormal = (r, th) => { const o = V(), rr = V(); L.radial(th, rr); o.set(0, -1, 0).addScaledVector(rr, L.crownSlope(r)); return o.normalize(); };
+  const knuckleNormal = (r, th) => { const phi = Math.asin(Math.min(1, Math.max(0, (r - 1050) / 80))); const o = V(), rr = V(); L.radial(th, rr); o.set(0, -80 * Math.cos(phi), 0).addScaledVector(rr, -160 * Math.sin(phi)); return o.normalize(); };
+  const radialN = th => { const o = V(); L.radial(th, o); return o; };
+  const down = () => new THREE.Vector3(0, -1, 0);
+  // heavy rim battery: three rows, forward 270°, 198 per row
+  for (const z of [-120, -315, -510]) for (let k = 0; k < 198; k++) { const th = -135 + (k + 0.5) * (270 / 198); fit('battery', 'disc', 'battery', RRIM, th, z, radialN(th), 30, 30, 4, [2, 10]); }
+  // medium face batteries
+  for (let k = 0; k < 117; k++) { const th = k * 360 / 117, r = 559.5; fit('battery', 'disc', 'battery', r, th, L.capZ(r), capNormal(r, th), 15, 15, 2, [1.5, 6]); fit('battery', 'disc', 'battery', r, th, L.crownZ(r), crownNormal(r, th), 15, 15, 2, [1.5, 6]); }
+  const mouthTh = []; for (let n = 0; n < 8; n++) { mouthTh.push(45 * n - 6.15, 45 * n + 6.15); }
+  const angDist = (a, b) => { let d = Math.abs(L.normTh(a) - L.normTh(b)); return Math.min(d, 360 - d); };
+  for (let k = 0; k < 234; k++) {
+    const th = k * 360 / 234, r = 1119;
+    fit('battery', 'disc', 'battery', r, th, L.capZ(r), capNormal(r, th), 15, 15, 2, [1.5, 6]);
+    const blockedByMouth = mouthTh.some(m => angDist(m, th) < 75 / 1119 / D), blockedByScreen = L.CORES.slice(1).some(c => angDist(c.th, th) < 60 / 1119 / D);
+    if (!blockedByMouth && !blockedByScreen) fit('battery', 'disc', 'battery', r, th, L.knZatR(r), knuckleNormal(r, th), 15, 15, 2, [1.5, 6]);
+  }
+  // point defence, 8 m mounts on a 120 m grid, thickened to 40 m at the openings
+  for (let r = 500; r <= 1600; r += 120) { const cnt = Math.round(2 * Math.PI * r / 120); for (let k = 0; k < cnt; k++) { const th = (k + 0.37 * (r / 120 % 2)) * 360 / cnt; if (!(r > 1000 && L.inAftArc(th) && r > 1560)) fit('pd', 'disc', 'pd', r, th, L.capZ(r), capNormal(r, th), 8, 8, 1, [1, 1]); } }
+  for (const z of [-60, -195, -330, -465, -585]) { const cnt = Math.round(2 * Math.PI * RRIM / 120); for (let k = 0; k < cnt; k++) { const th = -135 + (k + 0.5) * 270 / cnt; if (th < 135) fit('pd', 'disc', 'pd', RRIM, th, z, radialN(th), 8, 8, 1, [1, 1]); } }
+  for (let r = 1190; r <= 1670; r += 120) { const cnt = Math.round(2 * Math.PI * r / 120); for (let k = 0; k < cnt; k++) { const th = (k + 0.5) * 360 / cnt; fit('pd', 'disc', 'pd', r, th, -630, down(), 8, 8, 1, [1, 1]); } }
+  for (let r = 420; r <= 1020; r += 120) { const cnt = Math.round(2 * Math.PI * r / 120); for (let k = 0; k < cnt; k++) { const th = (k + 0.25) * 360 / cnt; const x = r * Math.sin(th * D), zp = -r * Math.cos(th * D); if (L.CORES.slice(1).some(c => Math.hypot(x - c.x, zp - c.zp) < 236)) continue; fit('pd', 'disc', 'pd', r, th, L.crownZ(r), crownNormal(r, th), 8, 8, 1, [1, 1]); } }
+  for (const c of L.CORES) { const lipR = c.wellR + 22, cnt = Math.round(2 * Math.PI * lipR / 40); for (let k = 0; k < cnt; k++) { const a = 2 * Math.PI * k / cnt, x = c.x + lipR * Math.cos(a), zp = c.zp + lipR * Math.sin(a), r = Math.hypot(x, zp), th = Math.atan2(x, -zp) / D; if (r > 1050) continue; fit('pd', 'disc', 'pd', r, th, L.crownZ(r), crownNormal(r, th), 8, 8, 1, [1, 1]); } }
+  // shield ring emitters, 24 on the web longitudes
+  for (let k = 0; k < 8; k++) { const th = 45 * k;
+    fit('shield', 'torus', 'shield', RRIM, th, -315, radialN(th), 60, 60, 60, [1, 8]);
+    fit('shield', 'torus', 'shield', 1119, th, L.capZ(1119), capNormal(1119, th), 60, 60, 60, [1, 8]);
+    fit('shield', 'torus', 'shield', 1560, th, -630, down(), 60, 60, 60, [1, 8]); }
+  // sensor apertures, 96 conformal panels
+  for (let k = 0; k < 16; k++) { const th = 11.25 + 22.5 * k; for (const r of [559.5, 1119]) fit('sensor', 'box', 'sensor', r, th, L.capZ(r), capNormal(r, th), 20, 8, 1.5, [1.5, 1.5]); }
+  for (let k = 0; k < 24; k++) { const th = -135 + 11.25 * (k + 0.5); fit('sensor', 'box', 'sensor', RRIM, th, -60, radialN(th), 20, 8, 1.5, [1.5, 1.5]); }
+  for (const th of [148, 163, 197, 212]) { const r = RRIM + 0.55 * (L.Rout(th) - RRIM); fit('sensor', 'box', 'sensor', r, th, 0, new THREE.Vector3(0, 1, 0), 20, 8, 1.5, [1.5, 1.5]); fit('sensor', 'box', 'sensor', r, th, -630, down(), 20, 8, 1.5, [1.5, 1.5]); }
+  for (let k = 0; k < 24; k++) { const th = 7.5 + 15 * k; fit('sensor', 'box', 'sensor', 1450, th, -630, down(), 20, 8, 1.5, [1.5, 1.5]); }
+  for (let k = 0; k < 8; k++) { const th = 22.5 + 45 * k, r = 150, o = V(), rr = V(); L.radial(th, rr); o.set(0, 1, 0).addScaledVector(rr, -(-r / Math.sqrt(1206 * 1206 - r * r))); fit('sensor', 'box', 'sensor', r, th, L.domeZ(r), o, 12, 6, 1.5, [1.5, 1.5]); }
+  // cavity screen emitters, eight 90 m apertures on the knuckle at Lance longitudes
+  for (const c of L.CORES.slice(1)) fit('screen', 'disc', 'screen', 1097, c.th, L.knZatR(1097), knuckleNormal(1097, c.th), 90, 90, 2, [2, 2]);
+  // launch mouths and boom recesses
+  for (const th of mouthTh) fit('mouth', 'box', 'mouth', 1117.8, th, L.knZatR(1117.8), knuckleNormal(1117.8, th), 120, 60, 3, [3, 3]);
+  for (let k = 0; k < 8; k++) { const th = 45 * k; fit('recess', 'box', 'recess', 1077.8, th, L.knZatR(1077.8), knuckleNormal(1077.8, th), 60, 40, 2, [2, 2]); fit('recess', 'box', 'recess', 1129.8, th, L.knZatR(1129.8), knuckleNormal(1129.8, th), 60, 40, 2, [2, 2]); }
+
+  const fitMeshes = {}; // kind -> [InstancedMesh]
+  const M4 = new THREE.Matrix4(), X = V(), Y = V(), Z = V(), TMP = V();
+  function setInstance(im, i, item, proud) {
+    Z.copy(item.n); const up = Math.abs(Z.y) < 0.9 ? TMP.set(0, 1, 0) : TMP.set(item.p.x, 0, item.p.z).normalize();
+    X.crossVectors(up, Z).normalize(); Y.crossVectors(Z, X);
+    const sz = proud;
+    M4.makeBasis(X.clone().multiplyScalar(item.s[0]), Y.clone().multiplyScalar(item.s[1]), Z.clone().multiplyScalar(sz));
+    M4.setPosition(item.p.x + Z.x * sz / 2, item.p.y + Z.y * sz / 2, item.p.z + Z.z * sz / 2);
+    im.setMatrixAt(i, M4);
+  }
+  for (const key in buckets) {
+    const b = buckets[key], [layer] = key.split('|');
+    const im = new THREE.InstancedMesh(fitGeo[b.geoKey], fitMat[b.matKey], b.items.length);
+    im.userData = { items: b.items, kind: b.kind };
+    b.items.forEach((it, i) => setInstance(im, i, it, it.proud[0]));
+    im.instanceMatrix.needsUpdate = true;
+    layerGroups[layer].add(im);
+    (fitMeshes[b.kind] = fitMeshes[b.kind] || []).push(im);
+  }
+  function setBatteries(deployed) { for (const im of (fitMeshes.battery || []).concat(fitMeshes.shield || [])) { im.userData.items.forEach((it, i) => setInstance(im, i, it, it.proud[deployed ? 1 : 0])); im.instanceMatrix.needsUpdate = true; } }
+
+  // ---------- labels ----------
+  function label(text, size, depth) {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g2 = c.getContext('2d');
+    g2.font = '600 46px Barlow, Arial, sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle';
+    g2.fillStyle = 'rgba(12,16,22,0.55)'; const w = g2.measureText(text).width + 36; g2.fillRect(256 - w / 2, 14, w, 68);
+    g2.fillStyle = '#eef1f5'; g2.fillText(text, 256, 50);
+    const tex = new THREE.CanvasTexture(c); tex.minFilter = THREE.LinearFilter;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: !!depth, clippingPlanes: depth ? [clipPlane] : null }));
+    sp.scale.set(size, size * 96 / 512, 1); sp.renderOrder = 10; return sp;
+  }
+  const labelGrp = new THREE.Group(); scene.add(labelGrp);
+  const coreLabels = L.CORES.map((c, i) => { const s = label(c.name, c.central ? 520 : 400, true); s.position.set(0, -(c.rc + 70), 0); coreGroups[i].add(s); return s; });
+  for (const [t, th] of [['Bow, 0°', 0], ['Stern, 180°', 180], ['Starboard, 90°', 90], ['Port, 270°', 270]]) { const s = label(t, 700); L.P(2150, th, -300, s.position); labelGrp.add(s); }
+
+  // ---------- section overlay ----------
+  const secUniforms = {
+    uOff: { value: L.LAYERS.map(() => new THREE.Vector3()) },
+    uVis: { value: new Float32Array(9).fill(1) },
+    uZB: { value: new Float32Array(L.ZB) },
+    uCore: { value: L.CORES.map(c => new THREE.Vector4(c.x, c.zc, c.zp, c.rc)) },
+    uCoreTh: { value: new Float32Array(L.CORES.map(c => c.th * D)) },
+    uSeat: seatUniform,
+    uCollar: { value: 0 }, uZones: { value: 1 },
+    uBA: { value: Array.from({ length: 36 }, () => new THREE.Vector4()) }, uBB: { value: Array.from({ length: 36 }, () => new THREE.Vector4()) }, uBC: { value: Array.from({ length: 36 }, () => new THREE.Vector4()) }, uNB: { value: 0 },
+  };
+  const secVert = `varying vec3 vPos; void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vPos = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }`;
+  const MAXB = 36;
+  const palGLSL = 'vec3 pal(int i) {' + L.INTERIOR.CAT.map((c, i) => { const h = parseInt(c[1].slice(1), 16); return `if (i == ${i}) return vec3(${(((h >> 16) & 255) / 255).toFixed(3)},${(((h >> 8) & 255) / 255).toFixed(3)},${((h & 255) / 255).toFixed(3)});`; }).join('') + 'return vec3(0.77,0.72,0.61); }';
+  const secFrag = `
+    precision highp float;
+    varying vec3 vPos;
+    uniform vec3 uOff[9]; uniform float uVis[9]; uniform float uZB[7]; uniform vec4 uCore[9]; uniform float uCoreTh[9]; uniform vec4 uSeat[9];
+    uniform float uCollar; uniform float uZones;
+    uniform vec4 uBA[${MAXB}]; uniform vec4 uBB[${MAXB}]; uniform vec4 uBC[${MAXB}]; uniform int uNB;
+    const float RRIM = ${RRIM}; const float RCAP2 = ${L.RCAP * L.RCAP}.0; const float CAPK = ${L.CAPK};
+    float capZ(float r){ return r < RRIM ? sqrt(RCAP2 - r*r) - CAPK : 0.0; }
+    float domeZ(float r){ return sqrt(1454436.0 - r*r) - 1126.0; }
+    float crownZ(float r){ float q = r/1050.0; return -420.0 - 50.0*q*q; }
+    float knZ(float r){ float s = clamp((r-1050.0)/80.0, 0.0, 1.0); return -470.0 - 160.0*(1.0 - sqrt(1.0 - s*s)); }
+    float bottomZ(float r){ return r >= 1130.0 ? -630.0 : (r >= 1050.0 ? knZ(r) : crownZ(r)); }
+    float thetaDeg(vec2 xz){ float t = degrees(atan(xz.x, -xz.y)); return t < 0.0 ? t + 360.0 : t; }
+    float Rout(float t){ return (t >= 135.0 && t <= 225.0) ? RRIM + 180.0*cos(radians(2.0*(t-180.0))) : RRIM; }
+    bool inAft(float r, float t){ return r >= 1000.0 && t >= 135.0 && t <= 225.0; }
+    ${palGLSL}
+    // interior blocks: A = (u0,u1,v0,v1) or (r0,r1,dθ0,dθ1) or (rc,-,ρ,-); B = (z0,z1,θc,copies+step/1000); C = (type,colour,param,flags)
+    int blockAt(vec3 q, float r, float t) {
+      for (int i = 0; i < ${MAXB}; i++) {
+        if (i >= uNB) break;
+        vec4 B = uBB[i]; if (q.y < B.x || q.y > B.y) continue;
+        vec4 A = uBA[i]; vec4 C = uBC[i];
+        float fl = C.w; bool isVoid = mod(fl, 2.0) >= 1.0; bool exAft = mod(floor(fl / 2.0), 2.0) >= 1.0;
+        if (!isVoid && uZones < 0.5) continue;
+        if (exAft && inAft(r, t)) continue;
+        float copies = floor(B.w + 0.0005); float stp = floor(fract(B.w) * 1000.0 + 0.5); int type = int(C.x + 0.5);
+        for (int k = 0; k < 8; k++) {
+          if (float(k) >= copies) break;
+          float tc = B.z + stp * float(k); float dt = mod(t - tc + 180.0, 360.0) - 180.0; bool hit = false;
+          if (type == 1) { hit = (r >= A.x && r <= A.y && dt >= A.z && dt <= A.w); }
+          else {
+            float dr = radians(dt); float u = r * cos(dr); float v = r * sin(dr);
+            if (type == 0) hit = (u >= A.x && u <= A.y && v >= A.z && v <= A.w);
+            else if (type == 3) hit = (u >= A.x && v >= A.z && v <= A.w && r <= Rout(t) - C.z);
+            else { float du = u - A.x; float dh = q.y - 0.5 * (B.x + B.y); hit = (du * du + v * v + dh * dh) < A.z * A.z; }
+          }
+          if (hit) return isVoid ? -1 : int(C.y + 0.5);
+        }
+      }
+      return -2;
+    }
+    // -1 outside or void, otherwise a palette index: 0 hull, 1 plating grade, 14 collar body, or the block colour
+    int hullZone(vec3 q) {
+      float r = length(q.xz); float t = thetaDeg(q.xz); float R = Rout(t);
+      if (r > R) return -1;
+      float top = (r < 250.0) ? domeZ(r) : capZ(r);
+      bool wellPlan = (r >= 250.0 && r <= 450.0);
+      if (wellPlan && q.y > -10.0) {
+        if (uCollar > 0.5) { if (q.y > 55.0) return -1; return 14; }
+        if (r >= 252.0 && r <= 448.0 && q.y >= 35.0 && q.y <= 100.0) return 14;
+        return -1;
+      }
+      if (q.y > top) return -1;
+      float bz = bottomZ(r);
+      if (q.y < bz) return -1;
+      for (int i = 0; i < 9; i++) { vec4 s = uSeat[i]; vec2 d = q.xz - s.xz; float d2 = dot(d,d); float rw = s.w + 6.0;
+        if (d2 < rw*rw && q.y >= crownZ(r) - 0.01 && q.y <= s.y) return -1;
+        float rb = s.w + 2.0; vec3 d3 = q - s.xyz; if (q.y > s.y && dot(d3,d3) < rb*rb) return -1; }
+      int b = blockAt(q, r, t);
+      if (b == -1) return -1;
+      bool grade = (r >= 450.0 && q.y > top - 10.0) || (r < 250.0 && q.y > top - 10.0) || (r > R - 4.0) || (q.y < bz + 4.0);
+      if (grade) return 1;
+      if (b >= 0) return b;
+      return 0;
+    }
+    bool inLayer(vec3 q, int Lx) {
+      float r = length(q.xz); float t = thetaDeg(q.xz);
+      bool aft = inAft(r, t); bool capReg = (r <= 450.0 && q.y >= -10.0);
+      if (Lx == 8) return aft;
+      if (Lx == 7) return capReg && !aft;
+      if (aft || capReg) return false;
+      if (Lx == 6) return q.y >= -50.0;
+      float z1 = 0.0, z2 = 0.0;
+      for (int k = 0; k < 6; k++) { if (k == Lx) { z1 = uZB[k]; z2 = uZB[k+1]; } }
+      return q.y >= z1 && q.y < z2;
+    }
+    void main(){
+      vec3 p = vPos;
+      int zone = -1; bool found = false; vec3 qh = p;
+      for (int Lx = 0; Lx < 9; Lx++) {
+        if (uVis[Lx] < 0.5) continue;
+        vec3 q = p - uOff[Lx];
+        if (!inLayer(q, Lx)) continue;
+        int z = hullZone(q); if (z >= 0) { zone = z; found = true; qh = q; break; }
+      }
+      int ci = -1; vec3 qc = vec3(0.0);
+      if (!found) { for (int i = 0; i < 9; i++) { vec4 c = uCore[i]; if (c.w <= 0.0) continue; vec3 d = p - c.xyz; if (dot(d,d) < c.w*c.w) { ci = i; qc = d; break; } } }
+      if (!found && ci < 0) discard;
+      vec3 col; float anchor;
+      if (found) { anchor = qh.y; col = pal(zone); }
+      else {
+        vec4 c = uCore[ci]; float rc = c.w; float rho = length(qc); float lat = asin(clamp(qc.y/rho, -1.0, 1.0));
+        anchor = qc.y;
+        col = pal(15);
+        float boxS = -30.0, boxN = (ci == 0) ? 30.0 : 40.0, depth = (ci == 0) ? 60.0 : 40.0;
+        if (degrees(lat) > boxS && degrees(lat) < boxN && rho > rc - depth) col = vec3(0.56,0.60,0.65);
+        if (degrees(lat) > 60.0) col = vec3(0.60,0.65,0.68);
+        if (rho < ((ci == 0) ? 50.0 : 30.0)) col = vec3(0.23,0.25,0.27);
+        float z1 = (ci == 0) ? 46.0 : 54.35, z2 = (ci == 0) ? 112.2 : 120.45;
+        bool deckA = (qc.y > z1 && qc.y < z1 + 20.0), deckB = (qc.y > z2 && qc.y < z2 + 20.0);
+        if (deckA || deckB) {
+          if (ci == 0) { for (int k = 0; k < 4; k++) { float a = radians(45.0*float(k)); vec2 dir = vec2(sin(a), -cos(a)); float u = qc.x*dir.y - qc.z*dir.x; if (abs(u) < 30.0) discard; } }
+          else { float a = uCoreTh[ci]; vec2 rhat = vec2(sin(a), -cos(a)); float u = qc.x*rhat.x + qc.z*rhat.y; if (abs(u) < 30.0) discard; }
+        }
+      }
+      float w = max(fwidth(p.y), 1e-4);
+      float fade = smoothstep(2.4, 0.7, w);
+      float d = abs(fract((anchor + 236.0)/6.0 + 0.5) - 0.5) * 6.0;
+      if (!found) d = abs(fract(anchor/6.0 + 0.5) - 0.5) * 6.0;
+      float ln = (1.0 - smoothstep(0.35 + 0.6*w, 0.35 + 1.6*w, d)) * fade;
+      col = mix(col, col*0.45, ln*0.9);
+      if (found) { float g = min(abs(qh.y + 236.0), abs(qh.y + 170.0)); float gl = 1.0 - smoothstep(0.9 + 0.8*w, 0.9 + 2.2*w, g); col = mix(col, vec3(0.85,0.65,0.23), gl); }
+      gl_FragColor = vec4(col, 1.0);
+    }`;
+  const secMat = new THREE.ShaderMaterial({ uniforms: secUniforms, vertexShader: secVert, fragmentShader: secFrag, side: THREE.DoubleSide });
+  secMat.extensions = { derivatives: true };
+  const secMesh = new THREE.Mesh(new THREE.PlaneGeometry(6400, 3600), secMat); secMesh.visible = false; secMesh.position.y = -300; scene.add(secMesh);
+
+  // ---------- interior allocation: blocks feed the section shader, the ghosted volumes and the clash check ----------
+  const INT = L.INTERIOR;
+  const interiorGroups = {};
+  function buildInteriorGroup(key) {
+    const grp = new THREE.Group(); grp.visible = false; const byCat = {};
+    for (const I of INT.expand(INT.REVS[key].blocks)) { if (INT.isSoft(I)) continue; (byCat[I.b.cat] = byCat[I.b.cat] || []).push(INT.instanceGeometry(I)); }
+    for (const cat in byCat) {
+      const geo = L.merge(byCat[cat]); const col = new THREE.Color(INT.CAT[cat][1]);
+      grp.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide, clippingPlanes: [clipPlane] })));
+      grp.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: col.clone().multiplyScalar(0.6), transparent: true, opacity: 0.85, clippingPlanes: [clipPlane] })));
+    }
+    shipRoot.add(grp); return grp;
+  }
+  interiorGroups.F = buildInteriorGroup('F'); interiorGroups.G = buildInteriorGroup('G');
+  function loadRev(key) {
+    const blocks = INT.REVS[key].blocks; blocks.forEach((b, i) => { if (i >= 36) return; secUniforms.uBA.value[i].set(b.A[0], b.A[1], b.A[2], b.A[3]); secUniforms.uBB.value[i].set(b.z0, b.z1, b.thc, b.copies + b.step / 1000); secUniforms.uBC.value[i].set(b.type, b.cat, b.param, b.flags); });
+    secUniforms.uNB.value = Math.min(36, blocks.length);
+  }
+  function setXray(on) { for (const m of hullMeshes) { if (m.userData.tag === 'core') continue; const mat = m.material; mat.transparent = on; mat.opacity = on ? 0.12 : 1; mat.depthWrite = !on; } seamLines.material.transparent = on; seamLines.material.opacity = on ? 0.25 : 1; }
+  const KIND = { rim: 'outside the rim or fairing boundary', dorsal: 'into the dorsal plating grade', ventral: 'below the ventral or cavity grade', bowl: 'inside a core bowl keep-out', well: 'inside a core well keep-out' };
+  const reportCache = {};
+  function renderReport(res) {
+    const mm = v => (v / 1e6).toFixed(v >= 1e6 ? 1 : 2) + ' million m³';
+    const th = a => a.length > 3 ? a.length + ' longitudes' : a.map(t => t + '°').join(', ');
+    const rootIssues = res.roots.flatMap(r => r.issues.map(i => ({ name: r.name, at: r.at, text: i })));
+    const nEnv = res.violations.length + rootIssues.length, nBad = res.clashes.length + nEnv;
+    const pl = (n, w) => n + ' ' + w + (n === 1 ? '' : (w.endsWith('h') ? 'es' : 's'));
+    let h = '<div class="sum">' + res.label + ': ' + (nBad === 0 ? 'no clashes, nothing outside the envelope' : pl(res.clashes.length, 'clash') + ', ' + pl(nEnv, 'envelope issue')) + '</div><ul>';
+    if (nBad === 0) h += '<li class="ok">Every block sits inside the plating grades, clear of the core keep-outs and of every other block.</li>';
+    for (const v of res.violations) h += '<li class="viol">' + v.name + ': ' + v.depth.toFixed(0) + ' m ' + KIND[v.kind] + ' at ' + th(v.thetas) + '</li>';
+    for (const r of rootIssues) h += '<li class="viol">' + r.name + ' (' + r.at + '): ' + r.text + '</li>';
+    for (const c of res.clashes) h += '<li class="clash">' + c.a + ' × ' + c.b + ': ' + mm(c.volume) + ' at ' + th(c.thetas) + '</li>';
+    for (const d of res.displacements) h += '<li class="disp">' + d.a + ' displaces ' + mm(d.volume) + ' of ' + d.b.toLowerCase() + '</li>';
+    for (const n of res.notes) h += '<li class="note">' + n + '</li>';
+    $('#clashReport').innerHTML = h + '</ul>';
+  }
+  function runCheck(key) {
+    if (reportCache[key]) { renderReport(reportCache[key]); return; }
+    $('#clashReport').innerHTML = '<div class="sum">Checking ' + INT.REVS[key].label + '…</div>';
+    setTimeout(() => { reportCache[key] = INT.check(key); if (S.rev === key) renderReport(reportCache[key]); }, 40);
+  }
+  function renderDatums(key) { $('#datumList').innerHTML = INT.REVS[key].blocks.filter(b => !(b.flags & INT.F.VOID) && !(b.flags & INT.F.SOFT)).map(b => '<li>' + INT.describe(b) + '</li>').join(''); }
+  $('#legend').innerHTML = INT.CAT.map(c => '<div><i style="background:' + c[1] + '"></i>' + c[0] + '</div>').join('');
+
+  // ---------- state ----------
+  const S = { state: 'cruising', collarStowed: false, batteries: false, screen: 'attenuating', release: 0, explode: 0, section: false, theta: 0, flip: false, zones: true, grid: false, wire: false, rev: 'G', interior3d: false,
+    layers: Object.fromEntries(L.LAYERS.map(l => [l.id, true])), cores: L.CORES.map(() => true), fittings: { battery: true, sensor: true, shield: true, pd: false, mouth: true, recess: true, screen: true, emitter: true, labels: true } };
+  const smooth = (t, a, b) => { const x = Math.min(1, Math.max(0, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
+  const coreRelease = i => { const w = [[0.75, 1], [0, 0.25], [0.2, 0.45], [0.4, 0.65], [0.6, 0.85], [0, 0.25], [0.2, 0.45], [0.4, 0.65], [0.6, 0.85]][i]; return smooth(S.release, w[0], w[1]); };
+  const releaseDrop = i => (i === 0 ? 1600 : 1400);
+
+  function apply() {
+    const e = S.explode;
+    for (const Ld of L.LAYERS) {
+      const g = layerGroups[Ld.id]; g.visible = S.layers[Ld.id];
+      g.position.set(0, 0, 0);
+      if (Ld.draw === 'dorsal') g.position.y = 150 * Ld.k * e; else if (Ld.draw === 'ventral') g.position.y = -150 * e; else g.position.z = 600 * e;
+    }
+    capMeshes.forEach(m => m.visible = e > 0.002);
+    L.CORES.forEach((c, i) => { const g = coreGroups[i]; g.visible = S.cores[i]; g.position.set(c.x, c.zc - 900 * e - releaseDrop(i) * coreRelease(i), c.zp); });
+    collarGrp.visible = !S.collarStowed; shutterMesh.visible = S.collarStowed; seamLines.visible = S.collarStowed;
+    screenFlatMesh.visible = S.screen === 'attenuating' || S.screen === 'hardened'; screenDishMesh.visible = S.screen === 'inboard';
+    screenFlatMesh.position.y = (S.screen === 'hardened' ? -10 : 0) - 150 * e; screenDishMesh.position.y = -150 * e;
+    screenMat.opacity = S.screen === 'attenuating' ? 0.07 : 0.2;
+    for (const k in fitMeshes) { for (const im of fitMeshes[k]) im.visible = !!S.fittings[k] && !S.wire && !S.interior3d; }
+    for (const k in interiorGroups) interiorGroups[k].visible = S.interior3d && k === S.rev && e <= 0.002;
+    emitterGrp.visible = S.fittings.emitter;
+    labelGrp.visible = S.fittings.labels; coreLabels.forEach(s => s.visible = S.fittings.labels);
+    G.uGrid.value = S.grid ? 1 : 0;
+    hullMeshes.forEach(m => m.material.wireframe = S.wire);
+    // section
+    const th = S.theta * D, n = new THREE.Vector3(Math.cos(th), 0, Math.sin(th)); if (S.flip) n.negate();
+    if (S.section) { clipPlane.normal.copy(n); clipPlane.constant = 0; } else { clipPlane.normal.set(1, 0, 0); clipPlane.constant = 1e7; }
+    secMesh.visible = S.section; secMesh.rotation.y = (90 - S.theta) * D; secMesh.position.copy(n).multiplyScalar(-1.5); secMesh.position.y = -300;
+    L.LAYERS.forEach((Ld, i) => { secUniforms.uOff.value[i].copy(layerGroups[Ld.id].position); secUniforms.uVis.value[i] = S.layers[Ld.id] ? 1 : 0; });
+    L.CORES.forEach((c, i) => { const g = coreGroups[i]; secUniforms.uCore.value[i].set(g.position.x, g.position.y, g.position.z, S.cores[i] ? c.rc : 0); });
+    secUniforms.uCollar.value = S.collarStowed ? 1 : 0; secUniforms.uZones.value = S.zones ? 1 : 0;
+    $('#legend').style.display = (S.section && S.zones) || S.interior3d ? 'block' : 'none';
+    // readout
+    const rel = S.release <= 0 ? 'cores seated' : (S.release >= 1 ? 'Corps on the ground, Praetorian separated' : 'releasing: ' + L.CORES.filter((c, i) => coreRelease(i) > 0.02 && coreRelease(i) < 0.98).map(c => c.short).join(', '));
+    const parts = [S.collarStowed ? 'collar stowed' : 'collar extended', S.batteries ? 'batteries deployed' : 'batteries flush', 'screen ' + S.screen, rel];
+    if (e > 0.002) parts.push('stack open ' + Math.round(e * 100) + '%');
+    let sec = '';
+    if (S.section) { const hits = L.CORES.filter((c, i) => S.cores[i] && (c.central || Math.abs(Math.sin((c.th - S.theta) * D)) * c.r < c.rc)).map(c => c.short); sec = ' — section at ' + S.theta.toFixed(1) + '° through ' + (hits.length ? hits.join(', ') : 'no cores'); }
+    $('#readout').innerHTML = '<b>' + (S.state === 'custom' ? 'Custom state' : S.state[0].toUpperCase() + S.state.slice(1)) + '</b> · ' + parts.join(' · ') + sec;
+  }
+
+  // ---------- UI ----------
+  const on = (sel, ev, fn) => $(sel).addEventListener(ev, fn);
+  const presets = {
+    cruising: { collarStowed: false, batteries: false, screen: 'attenuating', release: 0 },
+    action: { collarStowed: true, batteries: true, screen: 'hardened', release: 0 },
+    deployed: { collarStowed: true, batteries: true, screen: 'inboard', release: 1 },
+  };
+  function syncInputs() {
+    $('#collarStowed').checked = S.collarStowed; $('#batteries').checked = S.batteries; $('#screenMode').value = S.screen;
+    $('#release').value = S.release; $('#releaseVal').textContent = S.release <= 0 ? 'seated' : (S.release >= 1 ? 'released' : Math.round(S.release * 100) + '%');
+    $('#explodeVal').textContent = S.explode <= 0 ? 'assembled' : Math.round(S.explode * 100) + '%';
+    $('#sectionThetaVal').textContent = S.theta.toFixed(1) + '°';
+    document.querySelectorAll('[data-state]').forEach(b => b.setAttribute('aria-pressed', b.dataset.state === S.state ? 'true' : 'false'));
+  }
+  document.querySelectorAll('[data-state]').forEach(b => b.addEventListener('click', () => { S.state = b.dataset.state; Object.assign(S, presets[S.state]); setBatteries(S.batteries); syncInputs(); apply(); }));
+  const custom = () => { S.state = 'custom'; syncInputs(); };
+  on('#collarStowed', 'change', e => { S.collarStowed = e.target.checked; custom(); apply(); });
+  on('#batteries', 'change', e => { S.batteries = e.target.checked; setBatteries(S.batteries); custom(); apply(); });
+  on('#screenMode', 'change', e => { S.screen = e.target.value; custom(); apply(); });
+  on('#release', 'input', e => { S.release = +e.target.value; custom(); apply(); });
+  on('#explode', 'input', e => { S.explode = +e.target.value; syncInputs(); apply(); });
+  on('#section', 'change', e => { S.section = e.target.checked;
+    if (S.section) { const th = S.theta * D; const side = Math.cos(th) * camera.position.x + Math.sin(th) * camera.position.z; S.flip = side > 0; $('#sectionFlip').checked = S.flip; }
+    apply(); });
+  on('#sectionTheta', 'input', e => { S.theta = +e.target.value; syncInputs(); apply(); });
+  on('#sectionFlip', 'change', e => { S.flip = e.target.checked; apply(); });
+  on('#zones', 'change', e => { S.zones = e.target.checked; apply(); });
+  on('#deckGrid', 'change', e => { S.grid = e.target.checked; apply(); });
+  on('#wire', 'change', e => { S.wire = e.target.checked; apply(); });
+  function setRev(key) { S.rev = key; loadRev(key); document.querySelectorAll('[data-rev]').forEach(b => b.setAttribute('aria-pressed', b.dataset.rev === key ? 'true' : 'false')); renderDatums(key); runCheck(key); apply(); }
+  document.querySelectorAll('[data-rev]').forEach(b => b.addEventListener('click', () => setRev(b.dataset.rev)));
+  on('#interior3d', 'change', e => { S.interior3d = e.target.checked; setXray(S.interior3d); apply(); });
+  on('#autoRotate', 'change', e => { controls.autoRotate = e.target.checked; });
+  const fitMap = { fBatteries: ['battery'], fSensors: ['sensor', 'shield', 'screen'], fPD: ['pd'], fMouths: ['mouth', 'recess'], fEmitter: ['emitter'], fLabels: ['labels'] };
+  for (const id in fitMap) on('#' + id, 'change', e => { fitMap[id].forEach(k => S.fittings[k] = e.target.checked); apply(); });
+  // layer list in stack order
+  const order = ['cap', 'dorsal', 'berthing', 'ug', 'handling', 'lg', 'citadel', 'ventral', 'aft'];
+  const ul = $('#layerList');
+  for (const id of order) {
+    const Ld = L.LAYERS.find(l => l.id === id); const li = document.createElement('li');
+    const dz = Ld.id === 'aft' ? 'θ 135–225°, r ≥ 1000' : (Ld.id === 'cap' ? 'r ≤ 450, z ≥ −10' : (Ld.id === 'dorsal' ? 'z −50 to surface' : 'z ' + Ld.z[0] + ' to ' + Ld.z[1]));
+    li.innerHTML = `<i class="bar" style="--bar:${Ld.bar}"></i><label><input type="checkbox" checked data-layer="${Ld.id}"> ${Ld.name}</label><span class="dz">${dz}</span>`;
+    li.querySelector('input').addEventListener('change', e => { S.layers[Ld.id] = e.target.checked; apply(); });
+    ul.appendChild(li);
+    if (id === 'ventral') { const sp = document.createElement('li'); sp.className = 'spacer'; ul.appendChild(sp); }
+  }
+  const cl = $('#coreList');
+  L.CORES.forEach((c, i) => { const li = document.createElement('li'); li.className = 'cores'; li.innerHTML = `<i class="bar" style="--bar:${c.central ? '#4e565f' : '#8d949b'}"></i><label><input type="checkbox" checked data-core="${i}"> ${c.short}</label>`; li.querySelector('input').addEventListener('change', e => { S.cores[i] = e.target.checked; apply(); }); cl.appendChild(li); });
+  on('#coresAll', 'click', () => { S.cores = S.cores.map(() => true); document.querySelectorAll('[data-core]').forEach(i => i.checked = true); apply(); });
+  on('#coresNone', 'click', () => { S.cores = S.cores.map(() => false); document.querySelectorAll('[data-core]').forEach(i => i.checked = false); apply(); });
+  // views
+  const views = { iso: [3600, -2600, 4300], dorsal: [10, 6500, -1400], ventral: [10, -6500, 1400], beam: [6800, 600, 0], bow: [0, 900, -6800], stern: [0, 900, 6800] };
+  function setView(v) { const a = camera.aspect || 1, f = a < 1 ? 1 + (1 - a) * 1.3 : 1; camera.position.set(...views[v]).multiplyScalar(f); controls.target.set(0, -280, 0); controls.update(); }
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  on('#sideToggle', 'click', () => { const s = $('#side'); const open = !s.classList.contains('open'); s.classList.toggle('open', open); $('#sideToggle').setAttribute('aria-expanded', String(open)); });
+
+  // ---------- render ----------
+  function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h;
+    const sideW = window.innerWidth > 760 ? $('#side').offsetWidth : 0; camera.setViewOffset(w, h, -sideW / 2, 0, w, h); camera.updateProjectionMatrix(); }
+  window.addEventListener('resize', resize);
+  resize(); setView('iso'); syncInputs(); setRev('G');
+  $('#loading').style.display = 'none';
+  let tris = 0; scene.traverse(o => { if (o.isMesh && o.geometry.index) tris += o.geometry.index.count / 3 * (o.isInstancedMesh ? o.count : 1); });
+  console.log('triangles', Math.round(tris));
+  renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+  window.__lev = { renderer, scene, camera, controls, S, apply, setView, renderOnce: () => { renderer.setAnimationLoop(null); controls.update(); renderer.render(scene, camera); } };
+})();
+</script>
+</body>
+</html>
