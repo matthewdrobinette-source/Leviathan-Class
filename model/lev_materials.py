@@ -316,7 +316,7 @@ def drive_emitter():
     th = nb.math("ARCTAN2", x, y)
     slot = nb.math("ABSOLUTE", nb.math("SUBTRACT", nb.math("FRACT", nb.math("MULTIPLY", th, 1860.0 / 12.0)), 0.5))
     lou = nb.math("GREATER_THAN", slot, 0.43)
-    edge = nb.math("MULTIPLY", nb.math("GREATER_THAN", t, 0.03), nb.math("LESS_THAN", t, 0.96))
+    edge = nb.math("LESS_THAN", t, 0.96)          # no glow in the last few metres at the top and bottom faces
     glow = nb.math("MULTIPLY", lou, edge)
     col = nb.mix(nb.math("MULTIPLY", lou, 0.85), ramp.outputs[0], nb.rgb((0.03, 0.035, 0.045)))
     g = nb.value(1.0, label="Throttle glow")
